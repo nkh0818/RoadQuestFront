@@ -1,0 +1,83 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// 공통 레이아웃 컴포넌트
+import Header from './components/common/Header';
+import FooterNavbar from './components/common/FooterNavbar';
+
+// 페이지별 컴포넌트
+import Home from './pages/Home';
+import Search from './pages/Search';
+import Detail from './pages/Detail';
+import Place from './pages/place';
+import HistoryView from './components/detail/HistoryView';
+import ReviewFormView from './pages/ReviewForm';
+import MyPageView from './pages/Mypage';
+import MyReviewListView from './pages/MyReview';
+import SignUpView from './pages/SignUpView';
+import FindAccountView from './pages/FindAccountView';
+import LoginView from './pages/LoginView';
+import RouteResultPage from './pages/RouteResult';
+import RankingView from './pages/Rankingview';
+import CommunityView from './pages/communityview';
+import RouteGuideView from './pages/RouteGuideView';
+
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-sans">
+        
+        {/* 헤더 */}
+        <Header />
+
+        {/* 가변영역 */}
+        <main className="flex-1 overflow-y-auto no-scrollbar pb-24">
+          <Routes>
+            {/* 기본 홈 화면 (/) */}
+            <Route path="/" element={<Home />} />
+            
+          
+            {/* 로그인 */}
+            <Route path="/login" element={<LoginView />} />
+            <Route path="/signup" element={<SignUpView />} />
+            <Route path="/find" element={<FindAccountView />} />
+            
+            {/* quickmenu */}
+            {/* search */}
+            <Route path="/route" element={<RouteResultPage />}/>
+            <Route path="ai-guide" element={<RouteGuideView />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/detail/:id" element={<Detail />} />
+
+            {/* ranking */}
+            <Route path="/ranking" element={<RankingView />} />
+
+            {/* place */}
+            <Route path="/place" element={<Place />} />
+
+            <Route path="/history" element={<HistoryView/>} />
+
+            {/* reviews */}
+            <Route path="/my-reviews" element={<MyReviewListView />} />
+            <Route path="/review/write" element={<ReviewFormView />} />
+            <Route path="/review/edit/:id" element={<ReviewFormView />} />
+
+            {/* community */}
+            <Route path="/community" element={<CommunityView />} />
+
+            <Route path="/my" element={<MyPageView />} />
+
+            {/* 잘못된 주소로 들어왔을 때 처리 */}
+            <Route path="*" element={<div className="p-10 text-center font-bold">404 - 페이지를 찾을 수 없습니다.</div>} />
+          </Routes>
+        </main>
+
+        {/* 하단 메뉴 */}
+        <FooterNavbar />
+
+      </div>
+    </Router>
+  );
+}
+
+export default App;
