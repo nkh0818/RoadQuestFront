@@ -25,7 +25,7 @@ import RouteGuideView from './pages/RouteGuideView';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-sans">
+      <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-['pretendard'] ">
         
         {/* 헤더 */}
         <Header />

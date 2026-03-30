@@ -117,7 +117,7 @@ export default function MyPageView() {
         <h3 className="text-[13px] font-black text-slate-400 uppercase tracking-[0.15em] ml-2 mb-4">계정 설정</h3>
         
         {[
-          { title: "내가 쓴 전체 리뷰", icon: <MessageSquare size={20}/>, color: "text-blue-500", bg: "bg-blue-50", path: "/myreview", count: userInfo.reviewCount },
+          { title: "내가 쓴 전체 리뷰", icon: <MessageSquare size={20}/>, color: "text-blue-500", bg: "bg-blue-50", path: "/my-reviews", count: userInfo.reviewCount },
           { title: "다녀온 장소 지도", icon: <Map size={20}/>, color: "text-emerald-500", bg: "bg-emerald-50", path: "/mymap" },
           { title: "쿠폰함", icon: <Gift size={20}/>, color: "text-amber-500", bg: "bg-amber-50", path: "/coupons" },
         ].map((item, idx) => (

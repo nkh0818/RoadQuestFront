@@ -9,7 +9,7 @@ const SubHeader = ({ title, showBack = true, rightElement, children }) => {
       {showBack && <BackButton />}
 
       {/* 가운데: children */}
-      <div className="flex-1 flex items-center h-full">
+      <div className="flex-1 flex items-center justify-center h-full">
         {title ? (
           <h2 className="text-[18px] font-black text-slate-900 tracking-tighter leading-none">
             {title}

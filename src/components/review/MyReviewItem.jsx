@@ -126,7 +126,7 @@ export default function MyReviewItem({ review, onDelete, index }) {
               </span>
             </button>
           </div>
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <button
               onClick={() => navigate(`/review/edit/${review.id}`)}
               className="p-2.5 bg-slate-50 text-slate-500 rounded-xl"
@@ -139,7 +139,7 @@ export default function MyReviewItem({ review, onDelete, index }) {
             >
               <Trash2 size={18} />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* 댓글 섹션 */}

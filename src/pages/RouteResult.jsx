@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { MapPin, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import SubHeader from '../components/common/SubHeader';
 import FadeIn from '../components/common/FadeIn';
-import axios from 'axios'; // axios 설치 필요 (npm install axios)
+import axios from 'axios';
 
 export default function RouteResultPage() {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ export default function RouteResultPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-10 flex flex-col">
-      {/* 상단 헤더 생략 (기존 코드와 동일) */}
+      {/* 상단 헤더 */}
       <SubHeader
         title={
           <div className="flex items-center gap-4 py-1">
@@ -60,8 +60,9 @@ export default function RouteResultPage() {
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Start</span>
               <span className="text-[18px] font-black text-slate-400 tracking-tighter">{start || "출발지"}</span>
             </div>
-            <div className="flex flex-col items-center pt-3">
-               <ArrowRight size={} className="text-blue-500" />
+            <div className="flex items-center gap-2 pt-3">
+              <div className="w-8 h-[1.5px] bg-slate-300 rounded-full" />
+              <ArrowRight size={18} className="text-blue-500" strokeWidth={2.5} />
             </div>
             <div className="flex flex-col items-center">
               <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">End</span>
@@ -74,7 +75,7 @@ export default function RouteResultPage() {
       <main className="flex-1 px-6 py-8">
         {filterData && (
           <div className="mb-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-1.5 rounded-full shadow-lg shadow-blue-100 animate-bounce">
-            <Sparkles size={} />
+            <Sparkles size={18} />
             <span className="text-[12px] font-black">AI 맞춤 추천 경로</span>
           </div>
         )}
@@ -125,7 +126,7 @@ export default function RouteResultPage() {
                           {item.name}
                         </h4>
                         <div className="flex items-center gap-1 mt-1 text-slate-400">
-                          <MapPin size={} />
+                          <MapPin size={18} />
                           <span className="text-[12px] font-bold">{item.distance}</span>
                         </div>
                       </div>
