@@ -30,7 +30,7 @@ export default function RouteResultPage() {
         // 3. 백엔드 데이터를 프론트엔드 UI에 맞게 매핑
         // 백엔드의 findBestMatch 덕분에 이름은 "문경(창원방향)휴게소" 형태의 DB 진짜 데이터로 넘어옴
 
-        // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        // mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
       const mappedData = response.data.map((item, index) => ({
         id: item['휴게소코드'] || index,
         name: item['휴게소명'],
@@ -65,7 +65,7 @@ export default function RouteResultPage() {
               <span className="text-[18px] font-black text-slate-400 tracking-tighter">{start || "출발지"}</span>
             </div>
             <div className="flex flex-col items-center pt-3">
-               <ArrowRight size={20} className="text-blue-500" />
+              <ArrowRight size={20} className="text-blue-500" />
             </div>
             <div className="flex flex-col items-center">
               <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">End</span>
