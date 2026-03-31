@@ -29,9 +29,13 @@ export default function DetailInfoSection({ data }) {
           </div>
         ) : (
           <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+
+            
             { sortedEvents.slice(0, 3).map((item, index) => (
               <EventRow key={ item.id || index } item={ item } index={ index + 1 } />
             )) }
+
+
           </div>
         ) }
       </InfoSection>
