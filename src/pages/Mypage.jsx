@@ -9,7 +9,7 @@ import SubHeader from "../components/common/SubHeader";
 import FadeIn from "../components/common/FadeIn";
 
 import { useUserStore } from "../store/useUserStore";
-import { updateNickname } from "../../api/auth";
+import { updateNickname } from "../api/auth";
 
 export default function MyPageView() {
 
