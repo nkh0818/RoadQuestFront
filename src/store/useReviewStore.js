@@ -22,9 +22,7 @@ const useReviewStore = create((set, get) => ({
           date: "2024.05.20",
           liked: false,
           likeCount: 5,
-          comments: [
-            { id: 10, author: "관리자", text: "맛있게 드셨다니 다행입니다!", date: "2024.05.21" }
-          ]
+          comments: []
         },
         { 
           id: 2, 

@@ -1,39 +1,9 @@
-import React, { useState } from "react";
 import {
   MapPin,
   Navigation,
-  Search,
-  LocateFixed,
-  ArrowRightLeft,
 } from "lucide-react";
 
 export default function HeroSection({ routeInfo, setRouteInfo, onSearch }) {
-  const [isLocating, setIsLocating] = useState(false);
-
-  const handleGetMyLocation = () => {
-    if (!navigator.geolocation) {
-      alert("GPS를 지원하지 않는 브라우저입니다.");
-      return;
-    }
-
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setRouteInfo({
-          ...routeInfo,
-          start: `${longitude.toFixed(5)},${latitude.toFixed(5)}`,
-        });
-        setIsLocating(false);
-        alert("현재 위치가 설정되었습니다!");
-      },
-      () => {
-        setIsLocating(false);
-        alert("위치 정보를 가져오지 못했습니다.");
-      },
-      { enableHighAccuracy: true },
-    );
-  };
 
   return (
     <section className="relative min-h-[480px] w-full bg-gradient-to-b from-[#1E40AF] via-[#3182CE] to-[#6366F1] rounded-b-[4rem] p-8 pt-20 pb-28 overflow-hidden shadow-2xl shadow-blue-200">
@@ -70,17 +40,6 @@ export default function HeroSection({ routeInfo, setRouteInfo, onSearch }) {
                 placeholder="어디서 출발할까요?"
                 className="w-full bg-white rounded-[1.8rem] py-5 pl-14 pr-32 outline-none font-bold text-gray-900 placeholder:text-gray-400 focus:ring-4 focus:ring-white/20 transition-all shadow-[0_15px_30px_-5px_rgba(0,0,0,0.1)]"
               />
-              <button
-                onClick={handleGetMyLocation}
-                className="absolute right-3 top-1/2 -translate-y-1/2 bg-slate-50 hover:bg-slate-100 text-[#3182CE] px-4 py-2.5 rounded-2xl flex items-center gap-1.5 transition-all border border-slate-100 active:scale-95 shadow-sm"
-              >
-                {isLocating ? (
-                  <div className="w-4 h-4 border-2 border-[#3182CE]/30 border-t-[#3182CE] rounded-full animate-spin" />
-                ) : (
-                  <LocateFixed size={16} strokeWidth={2.5} />
-                )}
-                <span className="text-[12px] font-black">현위치</span>
-              </button>
             </div>
 
             {/* 목적지 입력창 */}

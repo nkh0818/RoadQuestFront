@@ -1,7 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Star, ArrowRight, MapPin, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 export default function ThemeTab() {
+
   const sections = [
     {
       title: "📸 찍으면 인생샷! 전망대 휴게소",
@@ -33,8 +35,13 @@ export default function ThemeTab() {
   );
 }
 
-// 개별 섹션 컴포넌트 (버튼 로직 포함)
+// 개별 섹션 컴포넌트
 function ThemeSection({ section, isGray }) {
+
+  console.log("현재 섹션 데이터:", section);
+
+  const navigate = useNavigate();
+
   const scrollRef = useRef(null);
   const [showLeftBtn, setShowLeftBtn] = useState(false);
 
@@ -81,12 +88,9 @@ function ThemeSection({ section, isGray }) {
         className="flex gap-5 overflow-x-auto px-6 scrollbar-hide scroll-smooth"
       >
         {section.items.map((item, i) => (
-          <div key={i} className="min-w-[280px] group/card cursor-pointer">
+          <div onClick={()=>navigate(`/detail/${item.id}`)} key={i} className="min-w-[280px] group/card cursor-pointer">
             <div className="relative aspect-[4/3] rounded-[2.2rem] overflow-hidden mb-4 shadow-xl shadow-slate-200/50">
               <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-700" />
-              <button className="absolute top-5 right-5 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white hover:text-rose-500 transition-all">
-                <Heart size={20} fill="currentColor" strokeWidth={0} />
-              </button>
               <div className="absolute bottom-5 left-5 bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-2xl flex items-center gap-1 text-[13px] font-black">
                 <Star size={12} className="text-amber-400 fill-amber-400" />
                 {item.score}

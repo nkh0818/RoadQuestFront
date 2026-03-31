@@ -51,7 +51,7 @@ export default function CommentSection({
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="댓글을 입력하세요..."
+          placeholder="댓글을 입력하세요"
           className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2.5 text-[13px] outline-none focus:border-[#3182CE] transition-all"
         />
         <button

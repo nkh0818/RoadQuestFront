@@ -38,15 +38,15 @@ export default function PopularTab() {
 
   return (
     <div className="py-6 space-y-10">
-      {/* 1. 휴게소 랭킹 캐러셀 */}
-      <section className="relative group"> {/* group 설정으로 버튼 제어 */}
+      {/* 1. 휴게소 랭킹 */}
+      <section className="relative group">
         <div className="px-6 mb-4 flex items-center justify-between">
           <h3 className="text-[20px] font-black text-slate-900 tracking-tighter flex items-center gap-2">
             <Flame className="text-orange-500 fill-orange-500" size={20} /> 실시간 인기 휴게소
           </h3>
         </div>
 
-        {/* 좌우 화살표 버튼 (PC에서만 보이고 모바일에서는 숨김 처리 권장) */}
+        {/* 좌우 화살표 버튼 */}
         {showLeftBtn && (
           <button 
             onClick={() => handleScroll('left')}
@@ -71,10 +71,11 @@ export default function PopularTab() {
         >
           {topRestAreas.map((item, idx) => (
             <div key={item.id} className="min-w-[280px] relative active:scale-95 transition-all ">
+              {/* 순위 뱃지 */}
               <div className="absolute top-4 left-4 z-10 bg-blue-600 text-white px-3 py-1 rounded-full font-black text-[12px] shadow-lg">
                 {idx + 1}위
               </div>
-              
+            
               <div className="h-[360px] rounded-[2.5rem] overflow-hidden relative shadow-xl shadow-slate-200">
                 <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
@@ -93,7 +94,7 @@ export default function PopularTab() {
         </div>
       </section>
 
-      {/* 2. 인기 메뉴 랭킹 (슬림 리스트) */}
+      {/* 2. 인기 메뉴 랭킹 */}
       <section className="px-6">
         <h3 className="text-[20px] font-black text-slate-900 tracking-tighter mb-5">
           지금 가장 많이 찾는 메뉴 🍜

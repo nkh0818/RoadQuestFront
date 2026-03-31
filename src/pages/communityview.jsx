@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  MessageSquare, Heart, Share2, MapPin, Star, Clock, Plus, 
-  SearchX, MoreHorizontal, Edit2, Trash2, AlertCircle, UserMinus 
+  MapPin, SearchX, MoreHorizontal, Edit2, Trash2, AlertCircle, UserMinus 
 } from 'lucide-react';
 import SubHeader from '../components/common/SubHeader';
 import Flotingwrite from '../components/common/Flotingwrite';
+import InquiryModal from '../components/common/InquiryModal';
+import { useInquiryStore } from '../store/useInquiryStore';
 
 export default function CommunityView() {
+  
   // 1. 현재 로그인한 유저의 ID (실제로는 Auth Context 등에서 가져옴)
   const currentUserId = "user_123"; 
 
@@ -18,10 +20,10 @@ export default function CommunityView() {
     {
       id: 1,
       userId: "user_123", // 내 글
-      user: "나(운전왕김철수)",
+      user: "운전왕김철수",
       restArea: "시흥하늘휴게소",
       tags: ["#돈가스", "#경치맛집"],
-      content: "와, 여기 돈가스 진짜 전문점 급이네. 뷰 보면서 먹으니까 더 꿀맛! (이건 내가 쓴 글입니다)",
+      content: "와, 여기 돈가스 진짜 전문점 급이네. 뷰 보면서 먹으니까 더 꿀맛!",
       time: "방금 전",
       image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
       likes: 12,
@@ -89,6 +91,8 @@ export default function CommunityView() {
 
 // --- 개별 리뷰 카드 컴포넌트 ---
 function ReviewCard({ post, currentUserId }) {
+  const openInquiry = useInquiryStore((state) => state.openInquiry);
+
   const [showMenu, setShowMenu] = useState(false);
   const isMine = post.userId === currentUserId; // 1. 권한 분리 로직 유지
 
@@ -113,7 +117,7 @@ function ReviewCard({ post, currentUserId }) {
           </div>
         </div>
 
-        {/* [메뉴] 권한별 드롭다운 유지 */}
+        {/* [메뉴] */}
         <div className="relative">
           <button 
             onClick={() => setShowMenu(!showMenu)}
@@ -124,7 +128,7 @@ function ReviewCard({ post, currentUserId }) {
 
           {showMenu && (
             <>
-              {/* 바깥 클릭 시 닫기용 오버레이 */}
+              {/* 바깥 클릭 시 닫기 */}
               <div className="fixed inset-0 z-20" onClick={() => setShowMenu(false)} />
               <div className="absolute right-0 mt-2 w-36 bg-white rounded-2xl shadow-2xl border border-slate-100 p-1.5 z-30 animate-in zoom-in-95 duration-200">
                 {isMine ? (
@@ -143,7 +147,9 @@ function ReviewCard({ post, currentUserId }) {
                     <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
                       <UserMinus size={14} /> 차단하기
                     </button>
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
+                    <button 
+                    onClick={openInquiry}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
                       <AlertCircle size={14} /> 신고하기
                     </button>
                   </>
@@ -154,7 +160,7 @@ function ReviewCard({ post, currentUserId }) {
         </div>
       </div>
 
-      {/* [중간] 본문 텍스트 (요청하신 대로 이미지 위로 이동) */}
+      {/* [중간] 본문 */}
       <div className="px-6 pb-4">
         <div className="flex flex-wrap gap-2 mb-3">
           {post.tags.map(t => (
@@ -166,7 +172,7 @@ function ReviewCard({ post, currentUserId }) {
         </p>
       </div>
 
-      {/* [하단] 이미지 (요청하신 대로 맨 밑으로 이동) */}
+      {/* [하단] 이미지 */}
       <div className="px-5">
         <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 border border-slate-50 shadow-inner">
           <img 
@@ -176,8 +182,6 @@ function ReviewCard({ post, currentUserId }) {
           />
         </div>
       </div>
-
-      {/* 액션바(하트 등)는 요청하신 대로 완전히 제거되었습니다. */}
     </div>
   );
 }
