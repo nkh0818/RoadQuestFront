@@ -21,11 +21,17 @@ import RouteResultPage from './pages/RouteResult';
 import RankingView from './pages/Rankingview';
 import CommunityView from './pages/communityview';
 import RouteGuideView from './pages/RouteGuideView';
+import InquiryModal from './components/common/InquiryModal';
+
+import { useInquiryStore } from './store/useInquiryStore';
 
 function App() {
+
+  const { isInquiryOpen, closeInquiry } = useInquiryStore();
+
   return (
     <Router>
-      <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-['pretendard'] ">
+      <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-sans">
         
         {/* 헤더 */}
         <Header />
@@ -55,8 +61,6 @@ function App() {
             {/* place */}
             <Route path="/place" element={<Place />} />
 
-            <Route path="/history" element={<HistoryView/>} />
-
             {/* reviews */}
             <Route path="/my-reviews" element={<MyReviewListView />} />
             <Route path="/review/write" element={<ReviewFormView />} />
@@ -65,12 +69,20 @@ function App() {
             {/* community */}
             <Route path="/community" element={<CommunityView />} />
 
+            <Route path="/history" element={<HistoryView/>} />
+
             <Route path="/my" element={<MyPageView />} />
 
             {/* 잘못된 주소로 들어왔을 때 처리 */}
             <Route path="*" element={<div className="p-10 text-center font-bold">404 - 페이지를 찾을 수 없습니다.</div>} />
           </Routes>
         </main>
+
+        <InquiryModal
+        isOpen={isInquiryOpen} 
+        onClose={closeInquiry} 
+      />
+
 
         {/* 하단 메뉴 */}
         <FooterNavbar />

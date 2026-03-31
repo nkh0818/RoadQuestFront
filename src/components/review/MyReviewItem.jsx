@@ -4,7 +4,7 @@ import {
   MessageSquare,
   Heart,
   MoreHorizontal,
-  Edit3,
+  Edit2,
   Trash2,
   MapPin,
   ChevronUp,
@@ -15,22 +15,31 @@ import useReviewStore from "../../store/useReviewStore";
 
 export default function MyReviewItem({ review, onDelete, index }) {
   const navigate = useNavigate();
+
+  const [showMenu, setShowMenu] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-  const { toggleLike, addComment, editComment, deleteComment } = useReviewStore();
+  const { toggleLike, addComment, editComment, deleteComment } =
+    useReviewStore();
 
   const commentCount = review.comments?.length ?? 0;
 
   return (
     <FadeIn delay={index * 100}>
       <article className="bg-white p-6 pt-8 pb-10">
-        {/* 상단: 장소 정보 */}
+        {/* 상단: 장소 정보 및 관리 메뉴 */}
         <div className="flex justify-between items-start mb-4">
+          {/* 왼쪽: 장소 정보 */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[#3182CE]">
-              <MessageSquare size={20} fill="currentColor" fillOpacity={0.2} />
+              <MessageSquare
+                size={20}
+                fill="currentColor"
+                fillOpacity={0.2}
+                strokeWidth={2.5}
+              />
             </div>
             <div>
-              <h4 className="font-black text-slate-900 text-[17px] tracking-tight">
+              <h4 className="font-black text-slate-900 text-[17px] tracking-tight leading-tight">
                 {review.placeName}
               </h4>
               <span className="text-[12px] text-slate-400 font-medium">
@@ -38,9 +47,57 @@ export default function MyReviewItem({ review, onDelete, index }) {
               </span>
             </div>
           </div>
-          <button className="text-slate-300">
-            <MoreHorizontal size={20} />
-          </button>
+
+          {/* 오른쪽: 내 리뷰 관리 드롭다운 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className={`p-2 rounded-full transition-all ${
+                showMenu
+                  ? "bg-slate-100 text-slate-600"
+                  : "text-slate-300 hover:text-slate-600"
+              }`}
+            >
+              <MoreHorizontal size={22} strokeWidth={2.5} />
+            </button>
+
+            {showMenu && (
+              <>
+                {/* 외부 클릭 시 닫기 오버레이 */}
+                <div
+                  className="fixed inset-0 z-20"
+                  onClick={() => setShowMenu(false)}
+                />
+
+                {/* 메뉴 본체 */}
+                <div className="absolute right-0 mt-2 w-36 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-slate-100 p-1.5 z-30 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      onClick={() => {
+                        setShowMenu(false);
+                        navigate(`/review/edit/${review.id}`);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                    >
+                      <Edit2 size={16} className="text-blue-500" />
+                      <span>수정하기</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowMenu(false);
+                        onDelete(review.id);
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors text-left"
+                    >
+                      <Trash2 size={16} />
+                      <span>삭제하기</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* 이미지 영역 */}

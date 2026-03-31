@@ -4,7 +4,7 @@ import {
   User, Settings, ChevronRight, MessageSquare, Map, Gift,
   Bell, LogOut, Check, X, CreditCard, Award
 } from "lucide-react";
-import PhotoUploader from "../components/review/PhotoUploader";
+import PhotoUploader from "../components/common/PhotoUploader";
 import SubHeader from "../components/common/SubHeader";
 import FadeIn from "../components/common/FadeIn";
 

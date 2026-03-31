@@ -6,13 +6,14 @@ import PassSection from '../components/Home/PassSection';
 import HeroSection from '../components/Home/HeroSection';
 import { useNavigate } from 'react-router-dom';
 import FadeIn from '../components/common/FadeIn';
-import InquiryModal from '../components/common/InquiryModal';
+
+import { useInquiryStore } from '../store/useInquiryStore';
 
 export default function Home() {
 
   const navigate = useNavigate();
 
-  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
+  const openInquiry = useInquiryStore((state) => state.openInquiry);
 
   const [routeInfo, setRouteInfo] = useState({
     start: '',
@@ -47,14 +48,9 @@ export default function Home() {
 
       <div className="mt-6">
         <FadeIn delay={600}>
-          <QuickMenuSection onInquiryClick={() => setIsInquiryOpen(true)} />
+          <QuickMenuSection onInquiryClick={openInquiry} />
         </FadeIn>
       </div>
-
-      <InquiryModal 
-        isOpen={isInquiryOpen} 
-        onClose={() => setIsInquiryOpen(false)} 
-      />
 
       {/* 음식 */}
       <div className="mt-5">
