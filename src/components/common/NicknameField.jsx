@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { fetchRandomNickname } from '../../api/auth';
 import { RefreshCw, User } from 'lucide-react';
 
 export default function NicknameField({ onNicknameChange }) {
@@ -10,9 +10,9 @@ export default function NicknameField({ onNicknameChange }) {
   const fetchNickname = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/auth/nickname');
-      setNickname(response.data);
-      onNicknameChange(response.data); // 부모 폼 데이터 업데이트
+      const data = await fetchRandomNickname();
+      setNickname(data);
+      onNicknameChange(data); // 부모 폼 데이터 업데이트
     } catch (error) {
       console.error("닉네임 생성 실패:", error);
       setNickname("기본_드라이버_123"); // 실패 대비용

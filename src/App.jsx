@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // 공통 레이아웃 컴포넌트
@@ -24,8 +24,16 @@ import RouteGuideView from './pages/RouteGuideView';
 import InquiryModal from './components/common/InquiryModal';
 
 import { useInquiryStore } from './store/useInquiryStore';
+import { useUserStore } from './store/useUserStore';
 
 function App() {
+
+  const fetchUser = useUserStore((state) => state.fetchUser);
+
+  useEffect(() => {
+    // 앱이 처음 켜질 때(혹은 새로고침 시) 로컬 스토리지를 확인해 유저 정보를 가져옴
+    fetchUser();
+  }, [fetchUser]);
 
   const { isInquiryOpen, closeInquiry } = useInquiryStore();
 

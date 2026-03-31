@@ -67,7 +67,7 @@ export default function HistoryView() {
         className="bg-white/80 backdrop-blur-xl border-b border-slate-100"
         rightElement={<TrendingUp size={20} />}
       />
-      {/* 상단 헤더: 업적 대시보드 */}
+      {/* 상단 헤더 */}
       <header className="px-6 pt-8 pb-10 bg-white rounded-b-[3.5rem] shadow-sm border-b border-slate-100">
         <div className="flex items-center gap-2 mb-6 px-2">
           <Award size={20} className="text-amber-500" />
@@ -106,18 +106,17 @@ export default function HistoryView() {
         </div>
 
         {driveLogs.map((log) => {
-          const style = getTheme(log.id); // 여기서 스타일 결정
+          const style = getTheme(log.id);
 
           return (
             <div
               key={log.id}
               className="max-w-[480px] mx-auto group bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all duration-500 cursor-pointer"
             >
-              {/* 상단 카드 배경: 그라데이션 */}
+              {/* 상단 카드 배경 */}
               <div
                 className={`p-7 bg-gradient-to-br ${style.gradient} relative overflow-hidden`}
               >
-                {/* 배경 장식 원 */}
                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
 
                 <div className="relative z-10 text-white">
@@ -127,7 +126,7 @@ export default function HistoryView() {
                     </div>
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // 카드 클릭 이벤트와 분리
+                        e.stopPropagation();
                         setSelectedLog(log);
                       }}
                       className="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl hover:bg-white text-white hover:text-slate-900 transition-all active:scale-90"

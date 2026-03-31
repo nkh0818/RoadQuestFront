@@ -28,11 +28,11 @@ export default function RouteResultPage() {
         });
 
         // 3. 백엔드 데이터를 프론트엔드 UI에 맞게 매핑
-        // 백엔드의 findBestMatch 덕분에 이름은 "문경(창원방향)휴게소" 형태의 DB 진짜 데이터로 넘어옴
         const mappedData = response.data.map((item, index) => ({
         id: item['휴게소코드'] || index,
         name: item['휴게소명'],
         distance: "경로상",
+        
         // 휘발유와 경유 값을 각각 매핑 (0원일 경우 '정보없음'으로 표시)
         gasoline: item.gasolinePrice > 0 ? `${item.gasolinePrice.toLocaleString()}원` : "정보없음",
         diesel: item.dieselPrice > 0 ? `${item.dieselPrice.toLocaleString()}원` : "정보없음",

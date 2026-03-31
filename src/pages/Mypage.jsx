@@ -1,28 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User, Settings, ChevronRight, MessageSquare, Map, Gift,
-  Bell, LogOut, Check, X, CreditCard, Award
+  LogOut, Check, X, CreditCard, Award
 } from "lucide-react";
 import PhotoUploader from "../components/common/PhotoUploader";
 import SubHeader from "../components/common/SubHeader";
 import FadeIn from "../components/common/FadeIn";
 
+import { useUserStore } from "../store/useUserStore";
+import { updateNickname } from "../../api/auth";
+
 export default function MyPageView() {
-  const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    nickname: "여행하는 초코송이",
-    email: "choco@travel.com",
-    reviewCount: 12,
-    point: 5500,
-    level: "프로 여행러",
-  });
 
   const [profilePreviews, setProfilePreviews] = useState([]);
 
-  const handleSave = () => {
-    setIsEditing(false);
+  const navigate = useNavigate();
+
+  // 스토어 데이터 및 함수 가져오기
+  const { user, fetchUser, isLoading, logout, setUserData } = useUserStore();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [tempNickname, setTempNickname] = useState(user?.nickname || "");
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  if (isLoading) return <div className="p-20 text-center">로딩 중...</div>;
+  if (!user) return (
+    <div className="p-20 text-center space-y-4">
+      <p className="font-bold text-slate-600">로그인이 필요한 서비스입니다.</p>
+      <button onClick={() => navigate('/login')} className="px-6 py-2 bg-blue-600 text-white rounded-xl">로그인하러 가기</button>
+    </div>
+  );
+
+  const handleSave = async () => {
+    if (!tempNickname.trim()){
+      alert("닉네임을 입력하세요.");
+      return;
+    }
+    
+    try{
+
+      const updatedUserData = await updateNickname(tempNickname);
+
+
+      setUserData(updatedUserData);
+      setIsEditing(false);
+
+    }catch(e){
+      console.error("닉네임을 수정하지 못했습니다:", e);
+      alert("닉네임 수정에 실패했습니다.");
+      setTempNickname(user?.nickname || "");
+    }
+    
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("로그아웃 하시겠습니까?")) {
+      logout();
+      navigate("/"); // 메인 페이지로 이동
+    }
   };
 
   return (
@@ -45,11 +84,9 @@ export default function MyPageView() {
 
       {/* 프로필 상단 */}
       <section className="relative px-6 pt-6 pb-12 overflow-hidden">
-        {/* 배경 장식 */}
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60" />
         
         <div className="relative flex flex-col items-center">
-          {/* 프로필 이미지 박스 */}
           <div className="relative group">
             <div className={`w-32 h-32 rounded-[2.8rem] overflow-hidden border-4 ${isEditing ? 'border-blue-100 ring-4 ring-blue-50' : 'border-white shadow-md'} transition-all duration-500`}>
               {profilePreviews.length > 0 ? (
@@ -71,41 +108,40 @@ export default function MyPageView() {
             )}
           </div>
 
-          {/* 텍스트 영역 */}
           <div className="mt-6 text-center space-y-2">
             {isEditing ? (
               <input
                 autoFocus
                 className="bg-white border-2 border-blue-100 rounded-2xl px-4 py-2 text-center text-xl font-black text-slate-800 outline-none focus:border-blue-500 transition-all shadow-sm"
-                value={userInfo.nickname}
-                onChange={(e) => setUserInfo({ ...userInfo, nickname: e.target.value })}
+                value={tempNickname}
+                onChange={(e) => setTempNickname(e.target.value)}
               />
             ) : (
               <div className="space-y-1">
                 <div className="flex items-center justify-center gap-1.5 text-blue-600">
                   <Award size={14} fill="currentColor" fillOpacity={0.2} />
-                  <span className="text-[12px] font-black uppercase tracking-wider">{userInfo.level}</span>
+                  <span className="text-[12px] font-black uppercase tracking-wider">LV.{user.level || 1} TRAVELER</span>
                 </div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">{userInfo.nickname}</h2>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">{user.nickname}</h2>
               </div>
             )}
-            <p className="text-[13px] font-bold text-slate-400">{userInfo.email}</p>
+            <p className="text-[13px] font-bold text-slate-400">{user.email}</p>
           </div>
         </div>
 
-        {/* 포인트/기록 대시보드 */}
+        {/* 포인트/기록 대시보드 (실제 데이터 반영) */}
         <div className="mt-10 grid grid-cols-2 gap-4">
           <div className="bg-white p-5 rounded-[2.2rem] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-50 relative overflow-hidden group">
             <div className="relative z-10">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">My Points</p>
-              <p className="text-[20px] font-black text-slate-900">{userInfo.point.toLocaleString()}<span className="text-[13px] ml-0.5 text-blue-600">P</span></p>
+              <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">My XP</p>
+              <p className="text-[20px] font-black text-slate-900">{(user.xp || 0).toLocaleString()}<span className="text-[13px] ml-0.5 text-blue-600">xp</span></p>
             </div>
             <CreditCard size={50} className="absolute -right-4 -bottom-4 text-blue-50 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
           </div>
           <div className="bg-white p-5 rounded-[2.2rem] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-50 relative overflow-hidden group">
             <div className="relative z-10">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">Memories</p>
-              <p className="text-[20px] font-black text-slate-900">{userInfo.reviewCount}<span className="text-[13px] ml-0.5 text-blue-600">건</span></p>
+              <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">Reviews</p>
+              <p className="text-[20px] font-black text-slate-900">{user.reviews?.length || 0}<span className="text-[13px] ml-0.5 text-blue-600">건</span></p>
             </div>
             <MessageSquare size={50} className="absolute -right-4 -bottom-4 text-blue-50 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
           </div>
@@ -117,7 +153,7 @@ export default function MyPageView() {
         <h3 className="text-[13px] font-black text-slate-400 uppercase tracking-[0.15em] ml-2 mb-4">계정 설정</h3>
         
         {[
-          { title: "내가 쓴 전체 리뷰", icon: <MessageSquare size={20}/>, color: "text-blue-500", bg: "bg-blue-50", path: "/my-reviews", count: userInfo.reviewCount },
+          { title: "내가 쓴 전체 리뷰", icon: <MessageSquare size={20}/>, color: "text-blue-500", bg: "bg-blue-50", path: "/my-reviews", count: user.reviews?.length },
           { title: "다녀온 장소 지도", icon: <Map size={20}/>, color: "text-emerald-500", bg: "bg-emerald-50", path: "/mymap" },
           { title: "쿠폰함", icon: <Gift size={20}/>, color: "text-amber-500", bg: "bg-amber-50", path: "/coupons" },
         ].map((item, idx) => (
@@ -133,14 +169,17 @@ export default function MyPageView() {
                 <span className="font-bold text-[16px] text-slate-700">{item.title}</span>
               </div>
               <div className="flex items-center gap-3">
-                {item.count && <span className="text-[12px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">{item.count}</span>}
+                {item.count !== undefined && <span className="text-[12px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">{item.count}</span>}
                 <ChevronRight size={18} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
               </div>
             </button>
           </FadeIn>
         ))}
 
-        <button className="w-full mt-10 p-5 flex items-center justify-center gap-2 text-slate-400 font-bold text-[14px] hover:text-red-400 transition-colors">
+        <button 
+          onClick={handleLogout}
+          className="w-full mt-10 p-5 flex items-center justify-center gap-2 text-slate-400 font-bold text-[14px] hover:text-red-400 transition-colors"
+        >
           <LogOut size={16} />
           로그아웃
         </button>
