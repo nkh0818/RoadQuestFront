@@ -9,10 +9,10 @@ export default function PassSection() {
 
   useEffect(() => {
     fetchUser();
-  }, [fetchUser]);
+  }, []);
 
   // 로딩 상태 UI
-  if (isLoading || !user) {
+  if (isLoading) {
     return (
       <div className="px-6 mb-10">
         <div className="bg-white rounded-[2.5rem] p-10 h-[280px] animate-pulse border border-gray-100 flex flex-col justify-center items-center gap-4">
@@ -22,6 +22,23 @@ export default function PassSection() {
       </div>
     );
   }
+
+  if (!user && !isLoading) {
+  return (
+    <div className="px-6 mb-10">
+      <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+        <Award size={48} className="text-slate-300 mb-4" />
+        <p className="text-slate-500 font-bold mb-6">로그인하고 나만의 여행 기록을<br/>차곡차곡 쌓아보세요!</p>
+        <button 
+          onClick={() => navigate('/login')}
+          className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-blue-100 active:scale-95 transition-all"
+        >
+          로그인하러 가기
+        </button>
+      </div>
+    </div>
+  );
+}
 
   const handleReviewClick = () => {
     if (reviewCount === 0) {

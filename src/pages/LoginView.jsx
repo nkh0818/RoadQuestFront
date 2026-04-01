@@ -1,17 +1,32 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, ArrowRight, UserPlus, Sparkles, ShieldCheck } from "lucide-react";
-import BackButton from "../components/common/Backbutton";
+import { Mail, Lock, ArrowRight, UserPlus, ShieldCheck } from "lucide-react";
 import SubHeader from "../components/common/SubHeader";
+
+import { loginWithLocal } from '../api/auth';
+import { useUserStore } from "../store/useUserStore";
 
 export default function LoginView() {
   const navigate = useNavigate();
+
+  const setUserData = useUserStore((state) => state.setUserData);
+
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("로그인 시도:", formData);
-    navigate("/");
+
+    try{
+
+      const data = await loginWithLocal(formData.email, formData.password);
+      console.log("로그인 성공!", data.nickname);
+
+      setUserData(data);
+      navigate("/");
+
+    }catch(e){
+      console.error("로그인 실패:", e.res);
+    }
   };
 
   return (

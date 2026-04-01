@@ -30,7 +30,7 @@ export default function DiningItem({ item }) {
           <span className="text-[12px] font-bold text-slate-400">{item.category}</span>
         </div>
 
-        {/* 3. 가격 영역: 우측 상단 고정 및 영역 확보 (shrink-0) */}
+        {/* 가격 */}
         <div className="text-right shrink-0 pt-0.5">
           <span className="text-[18px] font-black text-slate-900 tracking-tighter">
             {Number(item.price).toLocaleString()}

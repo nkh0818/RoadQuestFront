@@ -30,13 +30,12 @@ export default function RouteGuideView() {
   // 분석 애니메이션 후 결과 페이지 이동
   const finishAnalysis = (finalData) => {
     setIsAnalyzing(true);
-    
-    // AI가 분석하는 척 하는 딜레이 (감성 포인트)
+
     setTimeout(() => {
       setIsAnalyzing(false);
       // [백엔드 연결 포인트] 
       // 실제로는 여기서 axios.get('/api/recommend', { params: finalData }) 를 호출하여 
-      // 결과값을 받은 뒤 navigate 할 때 state로 넘겨주면 베스트입니다.
+      // 결과값을 받은 뒤 navigate 할 때 state로 넘겨줌
       navigate('/route-result', { state: { filterData: finalData } });
     }, 2000);
   };

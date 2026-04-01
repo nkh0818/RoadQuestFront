@@ -1,4 +1,5 @@
-// EventRow.jsx — 이벤트 목록의 개별 행 컴포넌트 (아코디언 열기/닫기 상태 관리)
+// EventRow.jsx — 이벤트 목록의 개별 행 컴포넌트 
+
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
