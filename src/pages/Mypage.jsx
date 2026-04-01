@@ -26,7 +26,7 @@ export default function MyPageView() {
   const navigate = useNavigate();
 
   // 스토어 데이터 및 함수 가져오기
-  const { user, fetchUser, isLoading, logout, setUserData } = useUserStore();
+  const { user, fetchUser, isLoading, logout, updateNicknameInStore } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
 
   const [tempNickname, setTempNickname] = useState(user?.nickname || "");
@@ -60,12 +60,10 @@ export default function MyPageView() {
     try {
       const updatedUserData = await updateNickname(tempNickname);
 
-      setUserData(updatedUserData);
+      updateNicknameInStore(updatedUserData.nickname);
       setIsEditing(false);
     } catch (e) {
       console.error("닉네임을 수정하지 못했습니다:", e);
-      console.log("에러 상태코드:", e.response.status);
-      console.log("요청 주소:", e.config.url);
       setTempNickname(user?.nickname || "");
     }
   };

@@ -4,8 +4,17 @@ import api from "./axios";
 
 // 카카오 로그인 (@PostMapping("/kakao"))
 export const loginWithKakao = async (accessToken) => {
-  const response = await api.post("/auth/kakao", accessToken, {
-    headers: { "Content-Type": "text/plain" },
+  const response = await api.post("/auth/kakao", { 
+    accessToken: accessToken 
+  });
+  return response.data;
+};
+
+// 일반 로그인 (@PostMapping("/login"))
+export const loginWithLocal = async (email, password) => {
+  const response = await api.post("/auth/login", { 
+    email: email,
+    password: password
   });
   return response.data;
 };
