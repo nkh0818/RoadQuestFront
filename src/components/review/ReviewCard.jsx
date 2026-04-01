@@ -40,6 +40,21 @@ export default function ReviewCard({ review, onEdit, onDelete, isMine = false })
               </h4>
               <ChevronRight size={18} className="text-slate-300 flex-shrink-0" />
             </div>
+
+            {/* 작성자 + 칭호 */}
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[13px] font-bold text-slate-700">
+                {review.nickname}
+              </span>
+
+                {review.currentTitle && (
+                  <span className="text-[11px] font-extrabold text-yellow-500 bg-yellow-50 px-2 py-0.5 rounded-lg">
+                    {typeof review.currentTitle === "string"
+                    ? review.currentTitle
+                    : review.currentTitle.titleName}
+                  </span>
+                )}
+</div>
             
             <div className="flex items-center gap-3">
               {/* 별점 */}
