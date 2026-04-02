@@ -30,7 +30,6 @@ export default function RouteGuideView() {
   // 분석 애니메이션 후 결과 페이지 이동
   const finishAnalysis = (finalData) => {
     setIsAnalyzing(true);
-
     setTimeout(() => {
       setIsAnalyzing(false);
       // [백엔드 연결 포인트] 
