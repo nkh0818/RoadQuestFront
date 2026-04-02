@@ -22,7 +22,6 @@ export default function RouteResultPage() {
       
       setIsLoading(true);
       try {
-        // 백엔드 RestAreaTestController 호출
         const response = await axios.get('http://localhost:8080/api/restareas/search', {
           params: { start, end }
         });
