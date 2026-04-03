@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { MapPin, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
 import SubHeader from '../components/common/SubHeader';
 import FadeIn from '../components/common/FadeIn';
-import axios from 'axios';
+import { searchRestAreas } from "../api/reatArea";
+import toast from 'react-hot-toast';
 
 export default function RouteResultPage() {
   const navigate = useNavigate();
@@ -17,39 +18,24 @@ export default function RouteResultPage() {
 
   // API 호출
   useEffect(() => {
-    const fetchRestAreas = async () => {
-      if (!start || !end) return;
-      
-      setIsLoading(true);
-      try {
-        const response = await axios.get('http://localhost:8080/api/restareas/search', {
-          params: { start, end }
-        });
+  const fetchResults = async () => {
+    if (!start || !end) return;
 
-        // 3. 백엔드 데이터를 프론트엔드 UI에 맞게 매핑
-        // 백엔드의 findBestMatch 덕분에 이름은 "문경(창원방향)휴게소" 형태의 DB 진짜 데이터로 넘어옴
-        const mappedData = response.data.map((item, index) => ({
-        id: item['휴게소코드'] || index,
-        name: item['휴게소명'],
-        distance: "경로상",
-        // 휘발유와 경유 값을 각각 매핑 (0원일 경우 '정보없음'으로 표시)
-        gasoline: item.gasolinePrice > 0 ? `${item.gasolinePrice.toLocaleString()}원` : "정보없음",
-        diesel: item.dieselPrice > 0 ? `${item.dieselPrice.toLocaleString()}원` : "정보없음",
-        brand: item['휴게소종류'] || "휴게소", 
-        tag: "추천"
-      }));
+    setIsLoading(true);
+    try {
+      // 1. API 호출과 데이터 매핑을 한 번에!
+      const mappedData = await searchRestAreas(start, end);
+      setRouteResults(mappedData);
+    } catch (error) {
+      console.error("검색 실패:", error);
+      toast.error("경로 탐색 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        setRouteResults(mappedData);
-      } catch (error) {
-        console.error("휴게소 데이터를 가져오는데 실패했습니다.", error);
-        alert("경로 탐색 중 오류가 발생했습니다.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRestAreas();
-  }, [start, end]); // 출발지/도착지가 바뀔때마다 실행
+  fetchResults();
+}, [start, end]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-10 flex flex-col">

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { fetchMyReviews, deleteReviewApi } from '../api/review';
 
 const useReviewStore = create((set, get) => ({
   reviews: [],
@@ -10,45 +11,26 @@ const useReviewStore = create((set, get) => ({
 
     set({ isLoading: true });
     try {
-      await new Promise((res) => setTimeout(res, 800));
-      const mockData = [
-        { 
-          id: 1, 
-          placeName: "덕평 자연 휴게소",
-          nickname: "초코송이", 
-          rating: 5, 
-          content: "여기 떡라면 진짜 명물이네요!", 
-          tags: ["찐맛집"], 
-          date: "2024.05.20",
-          liked: false,
-          likeCount: 5,
-          comments: []
-        },
-        { 
-          id: 2, 
-          placeName: "횡성 휴게소",
-          nickname: "여행자A", 
-          rating: 4, 
-          content: "주차장이 넓어서 편해요.", 
-          tags: ["주차편함"], 
-          date: "2024.05.15",
-          liked: true,
-          likeCount: 12,
-          comments: []
-        },
-      ];
-      set({ reviews: mockData });
+       const data = await fetchMyReviews();
+      set({ reviews: data });
+    } catch (error) {
+      console.error("리뷰 로딩 실패:", error);
     } finally {
       set({ isLoading: false });
     }
   },
 
   // 리뷰 삭제
-  deleteReview: (id) => {
-    // 실제 환경: await axios.delete(`/api/reviews/${id}`)
-    set((state) => ({
-      reviews: state.reviews.filter((r) => r.id !== id)
-    }));
+  deleteReview: async (id) => {
+    try {
+      await deleteReviewApi(id); // 🚀 서버에서 삭제
+      set((state) => ({
+        reviews: state.reviews.filter((r) => r.id !== id)
+      }));
+    } catch (error) {
+      console.error("리뷰 삭제 실패:", error);
+      throw error;
+    }
   },
 
   // 좋아요 토글 (실시간 카운트 반영)

@@ -27,7 +27,8 @@ export default function MyPageView() {
   const navigate = useNavigate();
 
   // 스토어 데이터 및 함수 가져오기
-  const { user, fetchUser, isLoading, logout, updateNicknameInStore } = useUserStore();
+  const { user, fetchUser, isLoading, logout, updateNicknameInStore } =
+    useUserStore();
   const [isEditing, setIsEditing] = useState(false);
 
   const [tempNickname, setTempNickname] = useState(user?.nickname || "");
@@ -169,12 +170,12 @@ export default function MyPageView() {
                   {user.nickname}
                 </h2>
                 {user.currentTitle && (
-                <div className="mt-1">
-                  <span className="text-[12px] font-extrabold text-yellow-500 bg-yellow-50 px-3 py-1 rounded-lg">
-                    {user.currentTitle.titleName}
-                  </span>
-                </div>
-)}
+                  <div className="mt-1">
+                    <span className="text-[12px] font-extrabold text-yellow-500 bg-yellow-50 px-3 py-1 rounded-lg">
+                      {user.currentTitle.titleName}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
             <p className="text-[13px] font-bold text-slate-400">{user.email}</p>
@@ -183,32 +184,56 @@ export default function MyPageView() {
 
         {/* 포인트/기록 대시보드 (실제 데이터 반영) */}
         <div className="mt-10 grid grid-cols-2 gap-4">
+          {/* 포인트 카드 */}
+          <div className="bg-white p-5 rounded-[2.2rem] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-50 relative overflow-hidden group">
+            <div className="relative z-10">
+              <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">
+                My Points
+              </p>
+              <p className="text-[20px] font-black text-slate-900">
+                {(user.rewardPoint || 0).toLocaleString()}
+                <span className="text-[13px] ml-0.5 text-amber-500">P</span>
+              </p>
+            </div>
+            <Gift
+              size={50}
+              className="absolute -right-4 -bottom-4 text-amber-50 -rotate-12 group-hover:rotate-0 transition-transform duration-500"
+            />
+          </div>
+
+          {/* 경험치 카드 */}
           <div className="bg-white p-5 rounded-[2.2rem] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-50 relative overflow-hidden group">
             <div className="relative z-10">
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">
                 My XP
               </p>
               <p className="text-[20px] font-black text-slate-900">
+                {/* ✨ xp 데이터 연결 */}
                 {(user.xp || 0).toLocaleString()}
-                <span className="text-[13px] ml-0.5 text-blue-600">xp</span>
+                <span className="text-[13px] ml-0.5 text-blue-600">XP</span>
               </p>
+              {/* 레벨바 시각화 (선택사항 - 넣으면 예뻐요!) */}
+              <div className="mt-2 w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 transition-all duration-1000"
+                  style={{ width: `${user.xp || 0}%` }}
+                />
+              </div>
             </div>
-            <CreditCard
+            <Award
               size={50}
               className="absolute -right-4 -bottom-4 text-blue-50 -rotate-12 group-hover:rotate-0 transition-transform duration-500"
             />
           </div>
+
           <div className="bg-white p-5 rounded-[2.2rem] shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-50 relative overflow-hidden group">
             <div className="relative z-10">
               <p className="text-[11px] font-black text-slate-400 uppercase tracking-tighter mb-1">
                 Reviews
               </p>
               <p className="text-[20px] font-black text-slate-900">
-                {user.reviews?.length || 0}
+                {user.reviewCount || 0}
                 <span className="text-[13px] ml-0.5 text-blue-600">건</span>
-              </p>
-              <p className="text-[12px] text-slate-400">
-                평균 평점: {user.avgRating || 0}
               </p>
             </div>
             <MessageSquare
@@ -234,7 +259,7 @@ export default function MyPageView() {
             color: "text-blue-500",
             bg: "bg-blue-50",
             path: "/my-reviews",
-            count: user.reviews?.length,
+            count: user.reviewCount,
           },
           {
             title: "다녀온 장소 지도",

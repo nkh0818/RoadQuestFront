@@ -2,13 +2,11 @@ import React from "react";
 import { Star, Edit2, Trash2, MapPin, Calendar, ChevronRight } from "lucide-react";
 
 export default function ReviewCard({ review, onEdit, onDelete, isMine = false }) {
-  // 운전 중 눈이 편안한 블루 포인트 컬러
   const pointColor = "#3182CE";
 
   return (
     <div className="bg-white mt-5 overflow-hidden border-b border-gray-300 flex flex-col group transition-all hover:shadow-xl hover:shadow-blue-950/5 active:scale-[0.99]">
-      
-      {/* 1. 이미지 영역 (사진이 있을 때만 노출) */}
+
       {review.thumbnail ? (
         <div className="w-full aspect-video overflow-hidden relative bg-slate-100">
           <img
@@ -25,7 +23,6 @@ export default function ReviewCard({ review, onEdit, onDelete, isMine = false })
           )}
         </div>
       ) : (
-        /* 사진 없을 때의 깔끔한 상단 바 */
         <div className="w-full h-2 bg-slate-50" />
       )}
 

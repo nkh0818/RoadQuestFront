@@ -71,7 +71,7 @@ function App() {
 
             {/* reviews */}
             <Route path="/my-reviews" element={<MyReviewListView />} />
-            <Route path="/review/write" element={<ReviewFormView />} />
+            <Route path="/review/write/:id" element={<ReviewFormView />} />
             <Route path="/review/edit/:id" element={<ReviewFormView />} />
 
             {/* community */}

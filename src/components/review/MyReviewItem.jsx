@@ -21,6 +21,18 @@ export default function MyReviewItem({ review, onDelete, index }) {
   const { toggleLike, addComment, editComment, deleteComment } =
     useReviewStore();
 
+  const rId = review.reviewId;
+
+  const handleRestAreaClick = () => {
+    if (review.restAreaCode) {
+      navigate(`/detail/${review.restAreaCode}`);
+    }
+  };
+
+  const displayDate = review.createdAt
+    ? review.createdAt.split("T")[0].replace(/-/g, ".")
+    : "방문일 정보 없음";
+
   const commentCount = review.comments?.length ?? 0;
 
   return (
@@ -38,12 +50,12 @@ export default function MyReviewItem({ review, onDelete, index }) {
                 strokeWidth={2.5}
               />
             </div>
-            <div>
+            <div onClick={handleRestAreaClick} className="cursor-pointer group">
               <h4 className="font-black text-slate-900 text-[17px] tracking-tight leading-tight">
-                {review.placeName}
+                {review.restAreaName}
               </h4>
               <span className="text-[12px] text-slate-400 font-medium">
-                {review.date}
+                {displayDate}
               </span>
             </div>
           </div>
@@ -63,7 +75,6 @@ export default function MyReviewItem({ review, onDelete, index }) {
 
             {showMenu && (
               <>
-                {/* 외부 클릭 시 닫기 오버레이 */}
                 <div
                   className="fixed inset-0 z-20"
                   onClick={() => setShowMenu(false)}
@@ -75,7 +86,7 @@ export default function MyReviewItem({ review, onDelete, index }) {
                     <button
                       onClick={() => {
                         setShowMenu(false);
-                        navigate(`/review/edit/${review.id}`);
+                        navigate(`/review/edit/${rId}`);
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors text-left"
                     >
@@ -86,7 +97,7 @@ export default function MyReviewItem({ review, onDelete, index }) {
                     <button
                       onClick={() => {
                         setShowMenu(false);
-                        onDelete(review.id);
+                        onDelete(rId);
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors text-left"
                     >
@@ -101,11 +112,11 @@ export default function MyReviewItem({ review, onDelete, index }) {
         </div>
 
         {/* 이미지 영역 */}
-        {review.thumbnail && (
+        {review.imageUrl && (
           <div className="relative w-full aspect-16/10 rounded-[1.8rem] overflow-hidden mb-6 shadow-xl shadow-slate-900/5">
             <img
-              src={review.thumbnail}
-              alt={review.placeName}
+              src={review.imageUrl}
+              alt={review.restAreaName}
               className="w-full h-full object-cover"
             />
             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-[11px] font-black text-slate-900 shadow-xl flex items-center gap-1.5 active:scale-95 transition-all">
@@ -152,7 +163,7 @@ export default function MyReviewItem({ review, onDelete, index }) {
         <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
           <div className="flex gap-5 items-center">
             <button
-              onClick={() => toggleLike(review.id)}
+              onClick={() => toggleLike(rId)}
               className="flex items-center gap-1.5 active:scale-90 transition-all"
             >
               <Heart
@@ -183,26 +194,12 @@ export default function MyReviewItem({ review, onDelete, index }) {
               </span>
             </button>
           </div>
-          {/* <div className="flex gap-2">
-            <button
-              onClick={() => navigate(`/review/edit/${review.id}`)}
-              className="p-2.5 bg-slate-50 text-slate-500 rounded-xl"
-            >
-              <Edit3 size={18} />
-            </button>
-            <button
-              onClick={() => onDelete(review.id)}
-              className="p-2.5 bg-red-50 text-red-500 rounded-xl"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div> */}
         </div>
 
         {/* 댓글 섹션 */}
         {isCommentsOpen && (
           <CommentSection
-            reviewId={review.id}
+            reviewId={rId}
             comments={review.comments ?? []}
             onAddComment={addComment}
             onEditComment={editComment}

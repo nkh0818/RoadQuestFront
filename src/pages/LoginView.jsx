@@ -5,6 +5,7 @@ import SubHeader from "../components/common/SubHeader";
 
 import { loginWithLocal } from '../api/auth';
 import { useUserStore } from "../store/useUserStore";
+import toast from "react-hot-toast";
 
 export default function LoginView() {
   const navigate = useNavigate();
@@ -17,12 +18,12 @@ export default function LoginView() {
     e.preventDefault();
 
     try{
-
       const data = await loginWithLocal(formData.email, formData.password);
       setUserData(data);
       navigate("/");
     }catch(e){
       console.error("로그인 실패:", e.res);
+      toast.error("로그인에 실패했습니다.");
     }
   };
 

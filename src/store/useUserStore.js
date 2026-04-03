@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { fetchMe } from "../api/auth";
 
-// 0403 나다희 수정
-
 export const useUserStore = create((set, get) => ({
   //상태 초기화
   user: null,
@@ -42,9 +40,12 @@ export const useUserStore = create((set, get) => ({
   /**
    * 새로고침 호출
    */
-  fetchUser: async () => {
+  fetchUser: async (force = false) => {
     const { isLoading, user } = get();
+
+    if (!force) {
     if (isLoading || user) return;
+  }
 
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -52,14 +53,21 @@ export const useUserStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const data = await fetchMe();
+      console.log("서버에서 준 전체 데이터:", data);
+      
       set({
-        user: data,
-        accessToken: token,
-        isLoading: false,
-      });
+      user: {
+        ...data,
+        rewardPoint: data.rewardPoint, 
+        xp: data.xp,
+        level: data.level
+      },
+      accessToken: token,
+      isLoading: false,
+    });
     } catch (error) {
-      console.error("🚨 fetchUser 에러 발생:", error);
-      get().logout();
+      console.error("fetchUser 에러 발생:", error);
+      set({ isLoading: false });
     }
   },
 
@@ -72,17 +80,24 @@ export const useUserStore = create((set, get) => ({
     set({ user: null, accessToken: null, isAuthenticated: false });
   },
 
-  /**
-   * XP 퍼센트 계산
-   */
-  getXpPercentage: () => {
-    const { user } = get();
-    // user가 없거나 xp가 없으면 0 반환
-    if (!user || typeof user.xp === "undefined") return 0;
+/**
+ * 현재 XP 숫자 그대로 반환
+ */
+getCurrentXp: () => {
+  const { user } = get();
+  return Number(user?.xp) || 0;
+},
 
-    const currentXp = Number(user.xp) || 0; // 혹시 문자열로 들어올 경우를 대비해 숫자로 변환
-    return Math.min(Math.max(currentXp % 100, 0), 100);
-  },
+/**
+ * 게이지 바 전용 퍼센트 (0~100)
+ */
+getXpPercentage: () => {
+  const { user } = get();
+  if (!user) return 0;
+  const currentXp = Number(user.xp) || 0;
+  // 레벨업 기준이 100이라면 그대로 리턴
+  return Math.min(currentXp, 100); 
+},
 
   /** 좋아요 토글 : ID리스트 */
   toggleReviewLike: (reviewId) => {

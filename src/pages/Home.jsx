@@ -9,6 +9,7 @@ import FadeIn from '../components/common/FadeIn';
 
 import { useInquiryStore } from '../store/useInquiryStore';
 import toast from 'react-hot-toast';
+import TrendSection from '../components/Home/TrendSection';
 
 export default function Home() {
 
@@ -40,8 +41,15 @@ export default function Home() {
         onSearch={handleSearch}
       />
 
+      <div className="mt-6 z-10">
+        <FadeIn delay={100}>
+          <TrendSection />
+        </FadeIn>
+      </div>
+      
+
       {/* 패스 */}
-      <div className="-mt-16 relative z-10">
+      <div className="mt-6">
         <FadeIn delay={100}>
           <PassSection />
         </FadeIn>
@@ -54,7 +62,7 @@ export default function Home() {
       </div>
 
       {/* 음식 */}
-      <div className="mt-5">
+      <div className="mt-6">
         <FadeIn delay={200}>
           <FoodSection />
         </FadeIn>

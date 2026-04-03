@@ -16,9 +16,14 @@ export default function MyReviewListView() {
     fetchReviews();
   }, [fetchReviews]);
 
-  const handleDeleteReview = (id) => {
-    deleteReview(id);
-    toast.success("리뷰가 삭제되었습니다.");
+  const handleDeleteReview = async (id) => {
+    try {
+      await deleteReview(id);
+      toast.success("리뷰가 삭제되었습니다.");
+    } catch (e) {
+      console.log("삭제실패:",e);
+      toast.error("삭제에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
@@ -44,7 +49,7 @@ export default function MyReviewListView() {
           <div className="divide-y divide-slate-100">
             {reviews.map((review, index) => (
               <MyReviewItem
-                key={review.id}
+                key={review.reviewId}
                 review={review}
                 onDelete={handleDeleteReview}
                 index={index}

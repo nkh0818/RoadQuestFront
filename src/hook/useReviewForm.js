@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useUserStore } from "../store/useUserStore";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const TAG_MAP = [
   { keywords: ["맛있", "맛나", "국물", "존맛"], tag: "찐맛집" },
@@ -11,6 +12,7 @@ const TAG_MAP = [
 
 export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
 
+  const token = localStorage.getItem("accessToken");
   const fetchUser = useUserStore((state) => state.fetchUser);
 
   const [content, setContent] = useState("");
@@ -58,21 +60,28 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0 || content.length < 5)
-      return alert("별점과 내용을 5자 이상 입력해주세요!");
+      return toast.error("별점과 내용을 5글자 이상 입력해 주세요.")
 
     setIsSubmitting(true);
 
     try {
       const reviewData = {
-        restAreaId,
-        rating,
-        content,
-        tags: tagList,
-        // imageUrl: "업로드후받은URL",
+        restAreaId: restAreaId,
+        rating: rating,
+        content: content,
+        tag: tagList.join(','),
+        userLat: verifyStatus?.lat || 37.1234,
+        userLon: verifyStatus?.lon || 127.1234,
       };
 
-      await axios.post('/api/reviews', reviewData);
-      await fetchUser();
+      console.log("보내는 데이터 확인:", reviewData);
+
+      await axios.post('/api/reviews', reviewData, {
+        headers: {
+    Authorization: `Bearer ${token}`
+        }
+      });
+      if (fetchUser) await fetchUser(true);
 
       onSuccess({
         points: verifyStatus === "verified" ? 200 : 100,
@@ -80,8 +89,8 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
         isVerified: verifyStatus === "verified",
       });
     } catch (error) {
-      alert("리뷰 저장에 실패했습니다.");
-      console.log("리뷰 저장 실패:", error);
+      toast.error("리뷰 작성에 실패했습니다.");
+      console.log("리뷰 저장 실패:", error.response?.data || error.message);
     } finally {
       setIsSubmitting(false);
     }

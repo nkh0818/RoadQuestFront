@@ -5,7 +5,9 @@ import { useParams } from 'react-router-dom';
 import DetailHero from "../components/detail/DetailHero";
 import DetailInfo from "../components/detail/DetailInfo";
 import Flotingwrite from "../components/common/Flotingwrite";
-import axios from "axios";
+
+import { fetchRestAreaDetail } from "../api/reatArea";
+import toast from "react-hot-toast";
 
 export default function Detail() {
 
@@ -18,11 +20,11 @@ export default function Detail() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 백엔드 API 호출
-        const response = await axios.get(`http://localhost:8080/api/restareas/detail/${ id }`);
-        setData(response.data);
+        const response = await fetchRestAreaDetail(id);
+        setData(response);
       } catch (error) {
         console.error("데이터를 불러오는 중 오류 발생:", error);
+        toast.error("정보를 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
@@ -50,7 +52,7 @@ export default function Detail() {
       <DetailInfo data={data} />
 
       {/* 플로팅 글쓰기 버튼 */}
-      <Flotingwrite />
+      {id && <Flotingwrite restAreaId={id} />}
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function DiningItem({ item }) {
             <h4 className="font-black text-[17px] text-slate-900 tracking-tight line-clamp-2 max-w-[180px]">
               {item.foodName}
             </h4>
-            {item.isBest && (
+            {item.isBest === 1 && (
               <span className="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shrink-0">
                 BEST
               </span>
@@ -32,10 +32,18 @@ export default function DiningItem({ item }) {
 
         {/* 3. 가격 영역: 우측 상단 고정 및 영역 확보 (shrink-0) */}
         <div className="text-right shrink-0 pt-0.5">
-          <span className="text-[18px] font-black text-slate-900 tracking-tighter">
-            {Number(item.price).toLocaleString()}
-          </span>
-          <span className="text-[12px] font-bold text-slate-300 ml-0.5">원</span>
+          {Number(item.price) === 0 ? (
+            <span className="text-[14px] font-black text-slate-400 tracking-tighter">
+              별도문의
+            </span>
+          ) : (
+            <>
+              <span className="text-[18px] font-black text-slate-900 tracking-tighter">
+                {Number(item.price).toLocaleString()}
+              </span>
+              <span className="text-[12px] font-bold text-slate-300 ml-0.5">원</span>
+            </>
+          )}
         </div>
       </div>
 

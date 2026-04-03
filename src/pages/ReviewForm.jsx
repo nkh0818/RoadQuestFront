@@ -26,7 +26,7 @@ export default function ReviewFormView() {
     tagList, dynamicTags, addTag, removeTag,
     photoPreviews, handlePhotoDrop, handlePhotoRemove,
     isSubmitting, handleSubmit,
-  } = useReviewForm({ verifyStatus, onSuccess: setRewardData });
+  } = useReviewForm({ verifyStatus, onSuccess: setRewardData, restAreaId: id });
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 font-['Pretendard']">

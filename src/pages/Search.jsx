@@ -84,12 +84,12 @@ export default function SearchPage() {
         </div>
       </SubHeader>
 
+      {/* 핫트렌드 */}
       <div className="px-6 py-3 overflow-x-auto no-scrollbar flex gap-2 bg-white">
         <span className="shrink-0 text-[12px] font-bold text-blue-600 flex items-center gap-1">
           현재 핫 트렌드
         </span>
 
-        {/* [수정] hotKeywords가 있을 때만 map을 돌리도록 방어! */}
         {hotKeywords && hotKeywords.length > 0 ? (
           hotKeywords.map((word) => (
             <button
@@ -110,7 +110,7 @@ export default function SearchPage() {
         )}
       </div>
 
-      {/** 맵 */}
+      {/* 맵 */}
       <KakaoMapSection />
 
       {/* 리스트 섹션 */}
