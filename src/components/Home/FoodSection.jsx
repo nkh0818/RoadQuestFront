@@ -31,7 +31,6 @@ export default function FoodSection() {
   return (
     <section className="max-w-[480px] mx-auto bg-transparent py-8 px-6">
       
-      {/* 섹션 헤더 디자인 (기존과 동일) */}
       <div className="flex justify-between items-end mb-8 px-1">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
@@ -48,7 +47,6 @@ export default function FoodSection() {
         </button>
       </div>
 
-      {/* 리스트: 이제 mockData가 아니라 bestFoods를 사용합니다 */}
       <div className="flex flex-col gap-5">
         {bestFoods.map((item, index) => (
           <div 
