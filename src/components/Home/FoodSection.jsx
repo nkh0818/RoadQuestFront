@@ -1,57 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // 1. useState, useEffect 추가
+import axios from 'axios'; // 2. axios 추가
 import DiningItem from './DiningItem';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ChefHat } from 'lucide-react';
 
 export default function FoodSection() {
-
   const navigate = useNavigate();
 
-  // 더미데이터
-  const mockData = [
-    { 
-      id: 1, 
-      restAreaId: "A001", // 상세페이지 이동을 위한 ID
-      name: "말죽거리 소고기 국밥", 
-      restArea: "천안 휴게소", 
-      type: "FOOD", 
-      price: 9500, 
-      rating: 5.0, 
-      reviews: 1240,
-      image: "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=200" 
-    },
-    { 
-      id: 2, 
-      restAreaId: "A002",
-      name: "한우 떡더덕 스테이크", 
-      restArea: "죽전 휴게소", 
-      type: "FOOD", 
-      price: 11000, 
-      rating: 4.8, 
-      reviews: 425,
-      image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=200"
-    },
-    { 
-      id: 4, 
-      restAreaId: "A003",
-      name: "수제 등심 돈가스", 
-      restArea: "망향 휴게소", 
-      type: "FOOD", 
-      price: 13500, 
-      rating: 4.7, 
-      reviews: 215,
-      image: "https://images.unsplash.com/photo-1594971475674-6a97f8fe8c2b?w=200"
-    }
-  ];
+  // 3. mockData 대신 서버 데이터를 담을 상태(State) 선언
+  const [bestFoods, setBestFoods] = useState([]); 
+
+  // 4. 컴포넌트가 켜질 때 서버에서 데이터를 가져옴
+  useEffect(() => {
+    const fetchBestFoods = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/main/best-food');
+        setBestFoods(response.data); // 서버에서 온 데이터(3개) 저장
+      } catch (error) {
+        console.error("베스트 푸드 로딩 실패:", error);
+      }
+    };
+    fetchBestFoods();
+  }, []);
 
   const handleItemClick = (restAreaId) => {
+    // App.jsx 설정에 맞춰 /detail/615 형태로 이동
     navigate(`/detail/${restAreaId}`);
   };
 
   return (
     <section className="max-w-[480px] mx-auto bg-transparent py-8 px-6">
       
-      {/* 1. 섹션 헤더 디자인 강화 */}
+      {/* 섹션 헤더 디자인 (기존과 동일) */}
       <div className="flex justify-between items-end mb-8 px-1">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
@@ -62,15 +42,15 @@ export default function FoodSection() {
             지금 <span className="text-[#3182CE]">인기있는</span> 메뉴
           </h3>
         </div>
-        <button className="flex items-center gap-1 text-[16px] font-black text-[#3182CE]  transition-colors">
+        <button className="flex items-center gap-1 text-[16px] font-black text-[#3182CE]">
           전체보기
           <ArrowRight size={14} />
         </button>
       </div>
 
-      {/* 리스트 */}
+      {/* 리스트: 이제 mockData가 아니라 bestFoods를 사용합니다 */}
       <div className="flex flex-col gap-5">
-        {mockData.map((item, index) => (
+        {bestFoods.map((item, index) => (
           <div 
             key={item.id} 
             onClick={() => handleItemClick(item.restAreaId)}
@@ -88,13 +68,13 @@ export default function FoodSection() {
         ))}
       </div>
 
-      {/* 하단 배너 */}
+      {/* 하단 배너 (기존과 동일) */}
       <div className="mt-10 bg-slate-900 rounded-[2rem] p-6 relative overflow-hidden group">
         <div className="relative z-10">
           <p className="text-blue-400 font-black text-[12px] mb-1">TIP</p>
           <h4 className="text-white font-bold text-[15px] leading-snug">
             실시간 고속도로 맛집 정보는<br/>
-            매일 오전 ---에 업데이트됩니다.
+            매일 오전 서버 데이터로 업데이트됩니다.
           </h4>
         </div>
         <ChefHat size={80} className="absolute -right-4 -bottom-4 text-white/10 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />

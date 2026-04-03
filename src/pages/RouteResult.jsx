@@ -146,12 +146,14 @@ export default function RouteResultPage() {
                         <span className="text-[14px] font-black text-slate-800">{item.gasoline}</span>
                       </div>
                       
-                      {/* 경유 (ml-3 추가해서 간격 띄움) */}
-                      <div className="flex flex-col ml-3">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">경유sssss</span>
+                      {/* 경유 */}
+                    <div className="flex flex-col ml-3">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">경유</span>
                         <span className="text-[14px] font-black text-slate-800">{item.diesel}</span>
                       </div>
                     </div>
+
+
                       
                       <button className="bg-slate-900 text-white text-[12px] font-black px-4 py-2 rounded-xl shadow-lg shadow-slate-200">
                         상세보기

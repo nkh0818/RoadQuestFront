@@ -91,7 +91,6 @@ function App() {
         onClose={closeInquiry} 
       />
 
-
         {/* 하단 메뉴 */}
         <FooterNavbar />
 
