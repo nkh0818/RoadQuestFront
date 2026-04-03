@@ -6,6 +6,7 @@ import SubHeader from "../components/common/SubHeader";
 import FadeIn from "../components/common/FadeIn";
 import MyReviewItem from "../components/review/MyReviewItem";
 import useReviewStore from "../store/useReviewStore";
+import toast from "react-hot-toast";
 
 export default function MyReviewListView() {
   const navigate = useNavigate();
@@ -16,9 +17,8 @@ export default function MyReviewListView() {
   }, [fetchReviews]);
 
   const handleDeleteReview = (id) => {
-    if (window.confirm("정말 이 리뷰를 삭제하시겠습니까?")) {
-      deleteReview(id);
-    }
+    deleteReview(id);
+    toast.success("리뷰가 삭제되었습니다.");
   };
 
   return (
@@ -67,7 +67,7 @@ function EmptyState({ navigate }) {
           <MessageSquare size={48} className="text-slate-200" strokeWidth={1.5} />
         </div>
         <h3 className="text-slate-900 font-black text-xl mb-2">
-          기록이 텅 비어있어요
+          기록이 텅 비어있어요.
         </h3>
         <p className="text-[14px] text-slate-400 font-medium leading-relaxed">
           휴게소에서의 즐거운 기억을

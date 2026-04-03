@@ -1,82 +1,65 @@
 import { create } from "zustand";
 import { fetchMe } from "../api/auth";
 
-const MOCK_FIELDS = {
-  xp: 75,
-  points: 1250,
-  currentTitle: {
-    id: 101,
-    titleName: "프로 여행러",
-  },
-  reviewLikes: [1, 2, 3, 4, 5], // 찜한 리뷰 ID 리스트
-  userTitles: [1, 2, 3], // 보유한 타이틀 ID 리스트
-  reviews: [1, 2], // 작성한 리뷰 리스트
-};
+// 0403 나다희 수정
 
 export const useUserStore = create((set, get) => ({
+  //상태 초기화
   user: null,
-  accessToken: null,
+  accessToken: localStorage.getItem("accessToken") || null,
   isLoading: false,
 
-  /**
-   * 로그인/회원가입 성공 시 호출
-   * 백엔드 데이터(authData)와 목업 데이터를 합성하여 저장
-   */
   setUserData: (authData) => {
+    const { accessToken, ...userData } = authData;
+
     set({
-      user: {
-        ...MOCK_FIELDS,
-        nickname: authData.nickname,
-        email: authData.email,
-        level: authData.level,
-        accessToken: authData.accessToken,
-      },
+      user: userData, // DTO에서 온 유저 정보
+      accessToken: accessToken,
       isLoading: false,
     });
 
-    // API 요청 시 사용할 토큰/닉네임을 로컬 스토리지에 저장
-    if (authData.accessToken) {
-      localStorage.setItem("accessToken", authData.accessToken);
-    }
-    if (authData.nickname) {
-      localStorage.setItem("nickname", authData.nickname);
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
     }
   },
 
-  /**
-   * 부분 업데이트 (닉네임 변경)
-   */
-  updateNicknameInStore: (newNickname) => {
+  /** 부분 업데이트 (닉네임 변경) */
+  updateNicknameInStore: (authData) => {
+    const { nickname, accessToken } = authData;
+
     set((state) => ({
-      user: state.user ? { ...state.user, nickname: newNickname } : null,
+      user: state.user
+        ? { ...state.user, nickname: nickname, accessToken: accessToken }
+        : null,
     }));
-    // 로컬 스토리지도 갱신
-    localStorage.setItem("nickname", newNickname);
+
+    localStorage.setItem("nickname", nickname);
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+    }
   },
 
   /**
    * 새로고침 호출
    */
   fetchUser: async () => {
+    const { isLoading, user } = get();
+    if (isLoading || user) return;
+
     const token = localStorage.getItem("accessToken");
-    if (!token) {
-      set({ user: null, isLoading: false });
-      return;
-    }
+    if (!token) return;
 
     set({ isLoading: true });
     try {
       const data = await fetchMe();
-
-      // 서버 데이터와 목업 데이터를 다시 합성
       set({
-        user: { ...MOCK_FIELDS, ...data },
+        user: data,
+        accessToken: token,
         isLoading: false,
       });
     } catch (error) {
       console.error("🚨 fetchUser 에러 발생:", error);
       get().logout();
-      set({ isLoading: false });
     }
   },
 
@@ -94,14 +77,14 @@ export const useUserStore = create((set, get) => ({
    */
   getXpPercentage: () => {
     const { user } = get();
-    if (!user) return 0;
-    const currentXp = user.xp || 0;
+    // user가 없거나 xp가 없으면 0 반환
+    if (!user || typeof user.xp === "undefined") return 0;
+
+    const currentXp = Number(user.xp) || 0; // 혹시 문자열로 들어올 경우를 대비해 숫자로 변환
     return Math.min(Math.max(currentXp % 100, 0), 100);
   },
 
-  /**
-   * 좋아요 토글
-   */
+  /** 좋아요 토글 : ID리스트 */
   toggleReviewLike: (reviewId) => {
     const { user } = get();
     if (!user) return;

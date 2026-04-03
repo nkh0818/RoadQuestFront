@@ -25,13 +25,13 @@ import InquiryModal from './components/common/InquiryModal';
 
 import { useInquiryStore } from './store/useInquiryStore';
 import { useUserStore } from './store/useUserStore';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
 
   const fetchUser = useUserStore((state) => state.fetchUser);
 
   useEffect(() => {
-    // 앱이 처음 켜질 때(혹은 새로고침 시) 로컬 스토리지를 확인해 유저 정보를 가져옴
     fetchUser();
   }, [fetchUser]);
 
@@ -40,7 +40,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-sans">
-        
+        <Toaster position="top-center" reverseOrder={false} />
         {/* 헤더 */}
         <Header />
 

@@ -18,9 +18,7 @@ export default function ReviewListView() {
 
   // 삭제 핸들러
   const handleDelete = (id) => {
-    if (window.confirm("정말 이 추억을 삭제하시겠습니까?")) {
-      deleteReview(id);
-    }
+    deleteReview(id);
   };
 
   return (

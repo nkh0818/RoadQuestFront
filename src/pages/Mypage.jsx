@@ -19,6 +19,7 @@ import FadeIn from "../components/common/FadeIn";
 
 import { useUserStore } from "../store/useUserStore";
 import { updateNickname } from "../api/auth";
+import toast from "react-hot-toast";
 
 export default function MyPageView() {
   const [profilePreviews, setProfilePreviews] = useState([]);
@@ -60,11 +61,13 @@ export default function MyPageView() {
     try {
       const updatedUserData = await updateNickname(tempNickname);
 
-      updateNicknameInStore(updatedUserData.nickname);
+      updateNicknameInStore(updatedUserData);
       setIsEditing(false);
+      toast.success("닉네임이 변경되었습니다.");
     } catch (e) {
       console.error("닉네임을 수정하지 못했습니다:", e);
       setTempNickname(user?.nickname || "");
+      toast.error("이미 사용 중인 닉네임이거나 오류가 발생했습니다.");
     }
   };
 

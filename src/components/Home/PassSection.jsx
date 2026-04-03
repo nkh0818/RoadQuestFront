@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { Trophy, ChevronRight, Award, Heart, MessageSquare } from "lucide-react";
+import {
+  Trophy,
+  ChevronRight,
+  Award,
+  Heart,
+  MessageSquare,
+} from "lucide-react";
 import { useUserStore } from "../../store/useUserStore";
 import { useNavigate } from "react-router-dom";
 
@@ -24,28 +30,32 @@ export default function PassSection() {
   }
 
   if (!user && !isLoading) {
-  return (
-    <div className="px-6 mb-10">
-      <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
-        <Award size={48} className="text-slate-300 mb-4" />
-        <p className="text-slate-500 font-bold mb-6">로그인하고 나만의 여행 기록을<br/>차곡차곡 쌓아보세요!</p>
-        <button 
-          onClick={() => navigate('/login')}
-          className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-blue-100 active:scale-95 transition-all"
-        >
-          로그인하러 가기
-        </button>
+    return (
+      <div className="px-6 mb-10">
+        <div className="bg-slate-50 rounded-[2.5rem] p-10 border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
+          <Award size={48} className="text-slate-300 mb-4" />
+          <p className="text-slate-500 font-bold mb-6">
+            로그인하고 나만의 여행 기록을
+            <br />
+            차곡차곡 쌓아보세요!
+          </p>
+          <button
+            onClick={() => navigate("/login")}
+            className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-blue-100 active:scale-95 transition-all"
+          >
+            로그인하러 가기
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   const handleReviewClick = () => {
     if (reviewCount === 0) {
       // 리뷰가 없을 때 검색 페이지로 유도
-      navigate('/search'); 
+      navigate("/search");
     } else {
-      navigate('/review');
+      navigate("/review");
     }
   };
 
@@ -72,11 +82,9 @@ export default function PassSection() {
       icon: <MessageSquare size={18} />,
       iconBg: "bg-blue-50 text-blue-500",
       isSpecial: reviewCount === 0,
-      onClick: handleReviewClick
+      onClick: handleReviewClick,
     },
   ];
-
-  
 
   return (
     <section className=" mb-10">
@@ -94,13 +102,19 @@ export default function PassSection() {
               </span>
             </div>
             <h3 className="text-[26px] font-black text-slate-900 leading-tight tracking-tighter">
-              {user.nickname}님,<br/>
+              {user.nickname}님,
+              <br />
               <span className="text-slate-400">반가워요!</span>
             </h3>
           </div>
           {/* 트로피 아이콘 박스 디자인 강화 */}
           <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-[1.5rem] flex items-center justify-center text-slate-800 border border-white shadow-inner">
-            <Trophy size={32} className="drop-shadow-sm" fill="#FFD700" fillOpacity={0.2} />
+            <Trophy
+              size={32}
+              className="drop-shadow-sm"
+              fill="#FFD700"
+              fillOpacity={0.2}
+            />
           </div>
         </div>
 
@@ -115,29 +129,41 @@ export default function PassSection() {
         <div className="space-y-4 relative z-10 bg-slate-50/50 p-5 rounded-3xl border border-slate-100/50">
           <div className="flex justify-between items-center px-1">
             <div className="flex flex-col">
-               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Level</span>
-               <span className="text-[13px] font-bold text-slate-600">
-                {progress >= 100 ? "Level Up!" : `${100 - (user.xp % 100)} XP 남았어요`}
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Next Level
+              </span>
+              <span className="text-[13px] font-bold text-slate-600">
+                {isLoading
+                  ? "계산 중..."
+                  : progress >= 100
+                    ? "Level Up!"
+                    : `${100 - ((user?.xp || 0) % 100)} XP 남았어요`}
               </span>
             </div>
-            <span className="text-[20px] font-black text-[#3182CE] italic">{progress}%</span>
+            <span className="text-[20px] font-black text-[#3182CE] italic">
+              {progress}%
+            </span>
           </div>
-          
+
           <div className="w-full h-4 bg-white rounded-full p-1 shadow-inner border border-slate-200/50 overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-400 via-blue-600 to-blue-500 rounded-full transition-all duration-1000 relative shadow-sm"
               style={{ width: `${progress}%` }}
             >
               {/* 바 내부 광원 애니메이션 */}
-              <div className="absolute inset-0 w-full h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent" style={{ backgroundSize: '200% 100%' }} />
+              <div
+                className="absolute inset-0 w-full h-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                style={{ backgroundSize: "200% 100%" }}
+              />
             </div>
           </div>
         </div>
 
         {/* 버튼 */}
-        <button 
-          onClick={() => navigate('/history')}
-          className="w-full mt-6 py-5 bg-slate-900 hover:bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center gap-3 transition-all font-black text-[15px] shadow-xl shadow-slate-200 active:scale-95">
+        <button
+          onClick={() => navigate("/history")}
+          className="w-full mt-6 py-5 bg-slate-900 hover:bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center gap-3 transition-all font-black text-[15px] shadow-xl shadow-slate-200 active:scale-95"
+        >
           나의 여행기록 보기
           <ChevronRight size={20} strokeWidth={3} />
         </button>
@@ -148,13 +174,15 @@ export default function PassSection() {
 
 function StatRow({ label, value, icon, iconBg, isSpecial, onClick }) {
   return (
-    <div 
+    <div
       onClick={onClick}
-      className={`flex items-center justify-between py-4 border-b border-gray-50 last:border-0 group px-2 ${onClick ? 'cursor-pointer active:scale-95' : ''} transition-all`}
+      className={`flex items-center justify-between py-4 border-b border-gray-50 last:border-0 group px-2 ${onClick ? "cursor-pointer active:scale-95" : ""} transition-all`}
     >
       <div className="flex items-center gap-4 w-full">
         {/* 아이콘 박스 */}
-        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:rotate-6 shadow-sm shrink-0 ${iconBg}`}>
+        <div
+          className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:rotate-6 shadow-sm shrink-0 ${iconBg}`}
+        >
           {icon}
         </div>
 
@@ -163,21 +191,23 @@ function StatRow({ label, value, icon, iconBg, isSpecial, onClick }) {
           <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">
             {label}
           </span>
-          
+
           {/* 가로 정렬 컨테이너 */}
           <div className="flex items-center gap-1.5">
-            <span className={`font-black tracking-tighter leading-none transition-colors truncate
-              ${isSpecial ? 'text-[15px] text-blue-600' : 'text-[16px] text-slate-800'}
-            `}>
+            <span
+              className={`font-black tracking-tighter leading-none transition-colors truncate
+              ${isSpecial ? "text-[15px] text-blue-600" : "text-[16px] text-slate-800"}
+            `}
+            >
               {value}
             </span>
-            
+
             {/* 아이콘: shrink-0으로 찌그러짐 방지 */}
             {isSpecial && (
-              <ChevronRight 
-                size={16} 
-                className="text-blue-500 shrink-0 animate-pulse" 
-                strokeWidth={3} 
+              <ChevronRight
+                size={16}
+                className="text-blue-500 shrink-0 animate-pulse"
+                strokeWidth={3}
               />
             )}
           </div>

@@ -19,11 +19,8 @@ export default function LoginView() {
     try{
 
       const data = await loginWithLocal(formData.email, formData.password);
-      console.log("로그인 성공!", data.nickname);
-
       setUserData(data);
       navigate("/");
-
     }catch(e){
       console.error("로그인 실패:", e.res);
     }

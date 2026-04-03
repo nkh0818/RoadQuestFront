@@ -24,7 +24,7 @@ src/
 │   ├── home/        # 홈/지도 관련 컴포넌트
 │   ├── review/      # 리뷰 작성 관련 (StarRating, TagSystem, PhotoUploader)
 │   └── search/      # 검색 필터 및 결과 리스트
-├── data/            # Mock 데이터 (DetailMock, SearchMock)
+├── data/            # Mock 데이터 (SearchMock)
 ├── pages/           # 라우트 단위 페이지 (Detail, MyReview, ReviewForm 등)
 ├── store/           # Zustand 상태 관리 (useUserStore, useSavedStore)
 ├── App.jsx          # 메인 라우팅 및 레이아웃 설정

@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import FadeIn from '../components/common/FadeIn';
 
 import { useInquiryStore } from '../store/useInquiryStore';
+import toast from 'react-hot-toast';
 
 export default function Home() {
 
@@ -22,7 +23,7 @@ export default function Home() {
 
   const handleSearch = () => {
     if (!routeInfo.start || !routeInfo.end) {
-      alert("출발지와 목적지를 모두 입력해주세요!");
+      toast.error("출발지와 목적지를 모두 입력해주세요!");
       return;
     }
     // 결과 페이지로 데이터를 가져감
@@ -41,20 +42,20 @@ export default function Home() {
 
       {/* 패스 */}
       <div className="-mt-16 relative z-10">
-        <FadeIn delay={500}>
+        <FadeIn delay={100}>
           <PassSection />
         </FadeIn>
       </div>
 
       <div className="mt-6">
-        <FadeIn delay={600}>
+        <FadeIn delay={150}>
           <QuickMenuSection onInquiryClick={openInquiry} />
         </FadeIn>
       </div>
 
       {/* 음식 */}
       <div className="mt-5">
-        <FadeIn delay={700}>
+        <FadeIn delay={200}>
           <FoodSection />
         </FadeIn>
       </div>

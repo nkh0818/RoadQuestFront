@@ -7,12 +7,14 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import { requestSignUp } from "../api/auth";
 
 import { useUserStore } from "../store/useUserStore";
+import toast from "react-hot-toast";
 
 export default function SignUpView() {
   const navigate = useNavigate();
 
   const { setUserData } = useUserStore();
 
+  const [isNicknameValid, setIsNicknameValid] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -21,6 +23,14 @@ export default function SignUpView() {
     nickname: "", // NicknameField에서 채워줄 값
   });
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   // NicknameField에서 보낸 값을 부모 상태에 반영
   const handleNicknameChange = (newNickname) => {
     setFormData((prev) => ({ ...prev, nickname: newNickname }));
@@ -28,10 +38,16 @@ export default function SignUpView() {
 
   const handleSignUp = async (e) => {
     console.log("handleSignup 실행");
+
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+      toast.error("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (!isNicknameValid) {
+      toast.error("닉네임을 확인해 주세요.");
       return;
     }
 
@@ -46,7 +62,7 @@ export default function SignUpView() {
       // Zustand 업데이트
       setUserData(authData);
 
-      alert(`${authData.nickname}님, 회원가입을 축하합니다!`);
+      toast.success(`${authData.nickname}님, 환영합니다! 🎉`);
       navigate("/");
     } catch (error) {
       console.error("가입 에러 발생:", error);
@@ -89,7 +105,10 @@ export default function SignUpView() {
 
         <form onSubmit={handleSignUp} className="space-y-8">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <NicknameField onNicknameChange={handleNicknameChange} />
+            <NicknameField
+              onNicknameChange={handleNicknameChange}
+              onValidationChange={setIsNicknameValid}
+            />
           </div>
 
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -100,11 +119,11 @@ export default function SignUpView() {
               />
               <input
                 type="email"
+                name="email"
+                value={formData.email}
                 placeholder="이메일 주소"
+                onChange={handleChange}
                 className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all font-bold text-slate-800 shadow-sm"
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
                 required
               />
             </div>
@@ -116,11 +135,11 @@ export default function SignUpView() {
               />
               <input
                 type="password"
+                name="password" // 1. name 설정
+                value={formData.password}
+                onChange={handleChange} // 2. 공통 함수 연결
                 placeholder="비밀번호 (8자 이상)"
                 className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all font-bold text-slate-800 shadow-sm"
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
                 required
               />
             </div>
@@ -132,9 +151,11 @@ export default function SignUpView() {
               />
               <input
                 type="password"
+                name="confirmPassword" // 1. name 설정 (오타 방지!)
+                value={formData.confirmPassword}
+                onChange={handleChange}
                 placeholder="비밀번호 확인"
                 className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all font-bold text-slate-800 shadow-sm"
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                 required
               />
             </div>

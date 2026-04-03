@@ -30,11 +30,7 @@ export default function QuickMenuSection({ onInquiryClick }) {
             iconColor="text-rose-500" 
             onClick={() => navigate('/place')}
           />
-        </div>
 
-        <div className="w-[1px] h-8 bg-slate-100 shrink-0" />
-
-        <div className="flex items-center gap-5">
           <QuickBtn 
             icon={<Star size={20} strokeWidth={2.5} />} 
             label="리뷰" 
