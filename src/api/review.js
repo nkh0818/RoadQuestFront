@@ -8,7 +8,7 @@ export const fetchMyReviews = async () => {
       Authorization: `Bearer ${token}`
     }
   });
-  return response.data; // List<ReviewResponseDTO>를 받아옴
+  return response.data;
 };
 
 // 리뷰 삭제하기

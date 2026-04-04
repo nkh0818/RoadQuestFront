@@ -2,28 +2,35 @@ import { useSavedStore } from "../store/useSavedStore";
 import { MapPin, ChevronRight, Ghost } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SubHeader from "../components/common/SubHeader";
+import { useEffect } from "react";
 
 export default function Place() {
-  const { savedRestAreas } = useSavedStore();
+  const { fetchFavorites, savedRestAreas } = useSavedStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (savedRestAreas.length === 0) {
+      fetchFavorites();
+    }
+  }, []);
 
   return (
     <div className="min-h-screen pb-32 font-sans bg-gray-50/30">
       <SubHeader
         title={
           <div className="flex flex-col -space-y-1">
-            <p className="text-[#3182CE] font-black text-[10px] uppercase tracking-widest ml-0.5 mb-2">
+            <p className="text-blue-600 font-black text-[10px] uppercase tracking-widest ml-0.5 mb-2">
               My Favorites
             </p>
             <h2 className="text-[18px] font-black text-gray-900 tracking-tighter">
-              플레이스
+              찜 목록
             </h2>
           </div>
         }
         // 우측 슬롯에 '총 개수' 정보 전달
         rightElement={
           <span className="text-[14px] font-bold text-gray-400 self-end mb-1">
-            총 <span className="text-[#3182CE]">{savedRestAreas.length}</span>곳
+            총 <span className="text-blue-600">{savedRestAreas.length}</span>곳
           </span>
         }
       />
@@ -42,7 +49,7 @@ export default function Place() {
               "
             >
               <div className="flex items-center gap-5">
-                <div className="w-16 h-16 bg-[#64CCC5]/5 rounded-[1.5rem] flex items-center justify-center text-[#3182CE] group-hover:bg-[#3182CE] group-hover:text-white transition-all duration-300 shadow-sm">
+                <div className="w-16 h-16 bg-[#64CCC5]/5 rounded-[1.5rem] flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
                   <MapPin
                     size={28}
                     fill="currentColor"
@@ -52,8 +59,8 @@ export default function Place() {
                 </div>
 
                 <div className="space-y-1">
-                  <h4 className="font-black text-gray-900 text-[20px] tracking-tight group-hover:text-[#3182CE] transition-colors">
-                    {restArea.name}
+                  <h4 className="font-black text-gray-900 text-[20px] tracking-tight group-hover:text-blue-600 transition-colors">
+                    {restArea.dbName}
                   </h4>
                   <div className="flex items-center gap-1.5">
                     <span className="inline-block w-1 h-1 rounded-full bg-gray-300 group-hover:bg-[#64CCC5]/40 transition-colors" />
@@ -64,7 +71,7 @@ export default function Place() {
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-[#64CCC5]/5 transition-all">
-                <ChevronRight className="text-gray-200 group-hover:text-[#3182CE] group-hover:translate-x-1 transition-all" />
+                <ChevronRight className="text-gray-200 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
               </div>
             </div>
           ))

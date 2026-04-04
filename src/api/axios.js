@@ -7,4 +7,20 @@ const api = axios.create({
   withCredentials: true,
 });
 
+//공통 인터셉터
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken"); 
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default api;

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { fetchMe } from "../api/auth";
+import { fetchMe, updateNickname } from "../api/auth";
 
 export const useUserStore = create((set, get) => ({
   //상태 초기화
@@ -11,7 +11,7 @@ export const useUserStore = create((set, get) => ({
     const { accessToken, ...userData } = authData;
 
     set({
-      user: userData, // DTO에서 온 유저 정보
+      user: userData,
       accessToken: accessToken,
       isLoading: false,
     });
@@ -19,6 +19,12 @@ export const useUserStore = create((set, get) => ({
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
     }
+  },
+
+  /** 닉네임 변경 API 호출 */
+  changeNickname: async (newNickname) => {
+    const updatedUserData = await updateNickname(newNickname);
+    get().updateNicknameInStore(updatedUserData);
   },
 
   /** 부분 업데이트 (닉네임 변경) */
@@ -37,15 +43,13 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  /**
-   * 새로고침 호출
-   */
+  /** 새로고침 호출 */
   fetchUser: async (force = false) => {
     const { isLoading, user } = get();
 
     if (!force) {
-    if (isLoading || user) return;
-  }
+      if (isLoading || user) return;
+    }
 
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -53,18 +57,18 @@ export const useUserStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const data = await fetchMe();
-      console.log("서버에서 준 전체 데이터:", data);
-      
+      // console.log("서버에서 준 전체 데이터:", data);
+
       set({
-      user: {
-        ...data,
-        rewardPoint: data.rewardPoint, 
-        xp: data.xp,
-        level: data.level
-      },
-      accessToken: token,
-      isLoading: false,
-    });
+        user: {
+          ...data,
+          rewardPoint: data.rewardPoint,
+          xp: data.xp,
+          level: data.level,
+        },
+        accessToken: token,
+        isLoading: false,
+      });
     } catch (error) {
       console.error("fetchUser 에러 발생:", error);
       set({ isLoading: false });
@@ -80,24 +84,24 @@ export const useUserStore = create((set, get) => ({
     set({ user: null, accessToken: null, isAuthenticated: false });
   },
 
-/**
- * 현재 XP 숫자 그대로 반환
- */
-getCurrentXp: () => {
-  const { user } = get();
-  return Number(user?.xp) || 0;
-},
+  /**
+   * 현재 XP 숫자 그대로 반환
+   */
+  getCurrentXp: () => {
+    const { user } = get();
+    return Number(user?.xp) || 0;
+  },
 
-/**
- * 게이지 바 전용 퍼센트 (0~100)
- */
-getXpPercentage: () => {
-  const { user } = get();
-  if (!user) return 0;
-  const currentXp = Number(user.xp) || 0;
-  // 레벨업 기준이 100이라면 그대로 리턴
-  return Math.min(currentXp, 100); 
-},
+  /**
+   * 게이지 바 전용 퍼센트 (0~100)
+   */
+  getXpPercentage: () => {
+    const { user } = get();
+    if (!user) return 0;
+    const currentXp = Number(user.xp) || 0;
+    // 레벨업 기준이 100이라면 그대로 리턴
+    return Math.min(currentXp, 100);
+  },
 
   /** 좋아요 토글 : ID리스트 */
   toggleReviewLike: (reviewId) => {

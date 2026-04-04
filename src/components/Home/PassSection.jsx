@@ -9,14 +9,20 @@ import {
 import { useUserStore } from "../../store/useUserStore";
 import { useNavigate } from "react-router-dom";
 import useReviewStore from "../../store/useReviewStore";
+import { useSavedStore } from "../../store/useSavedStore";
 
 export default function PassSection() {
-  const { reviews } = useReviewStore();
+  const { savedRestAreas, fetchFavorites } = useSavedStore();
+
+  const { reviews, fetchReviews } = useReviewStore();
   const { user, isLoading, fetchUser, getXpPercentage } = useUserStore();
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUser();
+    fetchReviews();
+    fetchFavorites();
   }, []);
 
   // 로딩 상태 UI
@@ -53,7 +59,7 @@ export default function PassSection() {
   }
 
   const handleReviewClick = () => {
-    if (reviewCount === 0) navigate("/review"); //여기서 여행기록으로 연결하고 -> 여행기록에서 휴게소 클릭하면 상세페이지로 이동하거나 바로 리뷰페이지로 이어지는 경험 필요함
+    if (reviewCount === 0) navigate("/history"); //여기서 여행기록으로 연결하고 -> 여행기록에서 휴게소 클릭하면 상세페이지로 이동하거나 바로 리뷰페이지로 이어지는 경험 필요함
   };
 
   const reviewCount = user?.reviews?.length || 0;
@@ -63,9 +69,12 @@ export default function PassSection() {
   const stats = [
     {
       label: "찜한 휴게소",
-      value: `${user?.reviewLikes?.length || 0}곳`,
+      value: `${savedRestAreas.length}곳`,
       icon: <Heart size={18} fill="currentColor" fillOpacity={0.2} />,
       iconBg: "bg-pink-50 text-pink-500",
+      // 💡 추가: 찜 목록 페이지로 이동
+      onClick: () => navigate("/place"),
+      isSpecial: savedRestAreas.length > 0,
     },
     {
       label: "타이틀 개수",
@@ -75,7 +84,10 @@ export default function PassSection() {
     },
     {
       label: "작성한 리뷰",
-      value: reviews.length === 0 ? "첫 리뷰를 작성해보세요!" : `${reviews.length}개`,
+      value:
+        reviews.length === 0
+          ? "첫 리뷰를 작성해보세요!"
+          : `${reviews.length}개`,
       icon: <MessageSquare size={18} />,
       iconBg: "bg-blue-50 text-blue-500",
       isSpecial: reviews.length === 0,
@@ -86,7 +98,6 @@ export default function PassSection() {
   return (
     <section className=" mb-10">
       <div className="max-w-[600px] mx-auto relative overflow-hidden bg-white rounded-[2.5rem] p-7 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] border border-slate-100 transition-all hover:shadow-[0_40px_80px_-15px_rgba(49,130,206,0.12)]">
-        
         {/* 장식용 배경 광원 */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-100/50 rounded-full blur-[60px] pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-slate-100 rounded-full blur-[50px] pointer-events-none" />
@@ -97,7 +108,8 @@ export default function PassSection() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="bg-slate-900 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.1em] shadow-lg shadow-slate-200">
-                  Lv.{user.level} {user.currentTitle?.titleName || "신규 여행자"}
+                  Lv.{user.level}{" "}
+                  {user.currentTitle?.titleName || "신규 여행자"}
                 </span>
               </div>
               <h3 className="text-[26px] font-black text-slate-900 leading-tight tracking-tighter">

@@ -41,7 +41,7 @@ export default function FoodSection() {
               RANDOM CHOICE
             </p>
           </div>
-          <h3 className="text-[26px] font-black text-slate-900 tracking-tighter leading-none">
+          <h3 className="text-[18px] font-black text-slate-900 tracking-tighter leading-none">
             이런 <span className="text-blue-600">음식</span> 어때요?
           </h3>
         </div>

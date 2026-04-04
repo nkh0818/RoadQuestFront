@@ -7,14 +7,18 @@ import DetailInfo from "../components/detail/DetailInfo";
 import Flotingwrite from "../components/common/Flotingwrite";
 
 import { fetchRestAreaDetail } from "../api/reatArea";
+import { useSavedStore } from "../store/useSavedStore";
+
 import toast from "react-hot-toast";
 
 export default function Detail() {
 
-  const { id } = useParams(); // // URL의 id (stdRestCd)
+  const { id } = useParams();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchFavorites = useSavedStore((state) => state.fetchFavorites);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +26,7 @@ export default function Detail() {
         setLoading(true);
         const response = await fetchRestAreaDetail(id);
         setData(response);
+        fetchFavorites();
       } catch (error) {
         console.error("데이터를 불러오는 중 오류 발생:", error);
         toast.error("정보를 불러오지 못했습니다.");

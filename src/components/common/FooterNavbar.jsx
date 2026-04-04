@@ -27,17 +27,17 @@ export default function FooterNavbar() {
   const navItems = [
     { icon: Home, label: '홈', path: '/' },
     { icon: MessageSquare, label: '커뮤니티', path: '/community' },
-    { icon: Sparkle, label: 'AI추천', path: 'ai-guide' },
+    { icon: Sparkle, label: 'AI추천', path: '/ai-guide' },
     { icon: User, label: '프로필', path: '/my' },
   ];
 
   return (
-    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] bg-white border-t border-gray-100 px-8 py-3 flex justify-between items-center z-50">
+    <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full h-20 max-w-[600px] bg-white border-t border-gray-100 px-8 flex justify-between items-center z-50 rounded-t-[2rem] shadow-[0_-8px_20px_-6px_rgba(0,0,0,0.08)]">
       {navItems.map((item) => {
         const isActive = location.pathname === item.path;
 
         // PROFILE 탭: 비로그인 상태일 때 툴팁 표시
-        if (item.label === 'PROFILE' && !isLoggedIn) {
+        if (item.label === '프로필' && !isLoggedIn) {
           return (
             <div
               key={item.path}
@@ -55,7 +55,7 @@ export default function FooterNavbar() {
                   <Link
                     to="/login"
                     onClick={() => setShowLoginTooltip(false)}
-                    className="w-full text-center text-xs font-black text-white bg-[#3182CE] rounded-xl py-2 transition-all active:scale-95 hover:bg-[#2563EB]"
+                    className="w-full text-center text-xs font-black text-white bg-blue-600 rounded-xl py-2 transition-all active:scale-95 hover:bg-blue-600"
                   >
                     로그인하기
                   </Link>
@@ -67,8 +67,8 @@ export default function FooterNavbar() {
                 className="flex flex-col items-center gap-1 min-w-16 cursor-pointer text-gray-300 hover:text-gray-400 transition-all active:scale-90"
                 onClick={() => setShowLoginTooltip((prev) => !prev)}
               >
-                <item.icon className="w-6 h-6" strokeWidth={2} />
-                <span className="text-[9px] font-black tracking-tight uppercase">
+                <item.icon className="w-12 h-12" strokeWidth={2} />
+                <span className="text-[12px] font-black tracking-tight uppercase">
                   {item.label}
                 </span>
               </div>
@@ -81,11 +81,11 @@ export default function FooterNavbar() {
             key={item.path}
             to={item.path}
             className={`flex flex-col items-center gap-1 min-w-[64px] transition-all active:scale-90 ${
-              isActive ? 'text-[#3182CE]' : 'text-gray-300 hover:text-gray-400'
+              isActive ? 'text-blue-600' : 'text-gray-300 hover:text-gray-400'
             }`}
           >
-            <item.icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
-            <span className="text-[9px] font-black tracking-tight uppercase">
+            <item.icon className="w-8 h-8" strokeWidth={isActive ? 2.5 : 2} />
+            <span className="text-[12px] font-black tracking-tight uppercase">
               {item.label}
             </span>
           </Link>

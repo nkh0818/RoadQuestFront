@@ -20,7 +20,7 @@ export default function SignUpView() {
     email: "",
     password: "",
     confirmPassword: "",
-    nickname: "", // NicknameField에서 채워줄 값
+    nickname: "",
   });
 
   const handleChange = (e) => {
@@ -55,11 +55,7 @@ export default function SignUpView() {
 
     try {
       console.log("서버로 데이터 전송 중...", formData);
-
-      // 백엔드 API 호출 api/auth.js 내부에 존재
       const authData = await requestSignUp(formData);
-
-      // Zustand 업데이트
       setUserData(authData);
 
       toast.success(`${authData.nickname}님, 환영합니다! 🎉`);
@@ -135,9 +131,9 @@ export default function SignUpView() {
               />
               <input
                 type="password"
-                name="password" // 1. name 설정
+                name="password"
                 value={formData.password}
-                onChange={handleChange} // 2. 공통 함수 연결
+                onChange={handleChange}
                 placeholder="비밀번호 (8자 이상)"
                 className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all font-bold text-slate-800 shadow-sm"
                 required
@@ -151,7 +147,7 @@ export default function SignUpView() {
               />
               <input
                 type="password"
-                name="confirmPassword" // 1. name 설정 (오타 방지!)
+                name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="비밀번호 확인"

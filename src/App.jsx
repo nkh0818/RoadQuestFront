@@ -47,11 +47,11 @@ function App() {
         {/* 가변영역 */}
         <main className="flex-1 overflow-y-auto no-scrollbar pb-24">
           <Routes>
-            {/* 기본 홈 화면 (/) */}
+            {/* home */}
             <Route path="/" element={<Home />} />
             
           
-            {/* 로그인 */}
+            {/* login */}
             <Route path="/login" element={<LoginView />} />
             <Route path="/signup" element={<SignUpView />} />
             <Route path="/find" element={<FindAccountView />} />

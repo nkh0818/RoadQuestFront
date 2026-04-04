@@ -1,8 +1,6 @@
 import api from "./axios";
 
-// 어떤 Auth 소속 api를 받아올 건지 정의
-
-// 카카오 로그인 (@PostMapping("/kakao"))
+// 카카오 로그인
 export const loginWithKakao = async (accessToken) => {
   const response = await api.post("/auth/kakao", { 
     accessToken: accessToken 
@@ -10,7 +8,7 @@ export const loginWithKakao = async (accessToken) => {
   return response.data;
 };
 
-// 일반 로그인 (@PostMapping("/login"))
+// 일반 로그인
 export const loginWithLocal = async (email, password) => {
   const response = await api.post("/auth/login", { 
     email: email,
@@ -19,19 +17,19 @@ export const loginWithLocal = async (email, password) => {
   return response.data;
 };
 
-// 닉네임 랜덤 생성 (@GetMapping("/nickname"))
+// 닉네임 랜덤 생성
 export const fetchRandomNickname = async () => {
   const response = await api.get("/auth/nickname");
   return response.data;
 };
 
-// 회원가입 (@PostMapping("/signup"))
+// 회원가입
 export const requestSignUp = async (signUpData) => {
   const response = await api.post("/auth/signup", signUpData);
   return response.data;
 };
 
-// 내 정보 조회 (@GetMapping("/me"))
+// 내 정보 조회
 export const fetchMe = async () => {
   const token = localStorage.getItem("accessToken");
 
@@ -65,5 +63,5 @@ export const updateNickname = async (newNickname) => {
     }
   );
 
-  return response.data; // 백엔드가 주는 AuthResponseDTO
+  return response.data;
 };

@@ -1,32 +1,45 @@
-/* Zustand Store - 찜 목록 */
-
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { fetchMyFavoritesApi, toggleFavoriteApi } from "../api/favorite";
 
-export const useSavedStore = create(
-  persist(
-    (set, get) => ({
-      savedRestAreas: [],
-      
-      // 찜 토글 액션
-      toggleSave: (restArea) => {
-        const { savedRestAreas } = get();
-        const isExist = savedRestAreas.some((item) => item.stdRestCd === restArea.stdRestCd);
-        
-        if (isExist) {
-          set({
-            savedRestAreas: savedRestAreas.filter((item) => item.stdRestCd !== restArea.stdRestCd),
-          });
-        } else {
-          set({ savedRestAreas: [...savedRestAreas, restArea] });
-        }
-      },
+export const useSavedStore = create((set, get) => ({
+  savedRestAreas: [],
+  isLoading: false,
 
-      // 특정 휴게소가 찜 되어있는지 확인하는 함수
-      isSaved: (stdRestCd) => get().savedRestAreas.some((item) => item.stdRestCd === stdRestCd),
-    }),
-    {
-      name: 'saved-rest-areas', // 로컬스토리지 키 이름
+  // 서버에서 내 찜 목록 동기화 (페이지 진입 시 호출)
+  fetchFavorites: async () => {
+    try {
+      const data = await fetchMyFavoritesApi();
+      set({ savedRestAreas: data || [] });
+    } catch (error) {
+      console.error("찜 목록 로드 실패", error);
+    } finally {
+      set({ isLoading: false });
     }
-  )
-);
+  },
+
+  // 찜 토글 (서버 통신)
+  toggleSave: async (restArea) => {
+    try {
+      // API 호출 (stdRestCd만 전달)
+      const isFavorited = await toggleFavoriteApi(restArea.stdRestCd);
+
+      const { savedRestAreas } = get();
+      if (!isFavorited) {
+        set({
+          savedRestAreas: savedRestAreas.filter(
+            (item) => item.stdRestCd !== restArea.stdRestCd,
+          ),
+        });
+      } else {
+        set({ savedRestAreas: [...savedRestAreas, restArea] });
+      }
+    } catch (error) {
+      console.error("토글 실패", error);
+    }
+  },
+
+  isSaved: (stdRestCd) => {
+    const { savedRestAreas } = get();
+    return savedRestAreas.some((item) => item.stdRestCd === stdRestCd);
+  },
+}));

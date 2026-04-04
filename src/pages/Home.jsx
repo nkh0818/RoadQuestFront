@@ -11,16 +11,18 @@ import { useInquiryStore } from '../store/useInquiryStore';
 import toast from 'react-hot-toast';
 import TrendSection from '../components/Home/TrendSection';
 
+
 export default function Home() {
 
   const navigate = useNavigate();
-
   const openInquiry = useInquiryStore((state) => state.openInquiry);
 
   const [routeInfo, setRouteInfo] = useState({
     start: '',
     end: ''
   });
+
+
 
   const handleSearch = () => {
     if (!routeInfo.start || !routeInfo.end) {
@@ -42,7 +44,7 @@ export default function Home() {
       />
 
       <div className="mt-6 z-10">
-        <FadeIn delay={100}>
+        <FadeIn delay={50}>
           <TrendSection />
         </FadeIn>
       </div>
@@ -63,7 +65,7 @@ export default function Home() {
 
       {/* 음식 */}
       <div className="mt-6">
-        <FadeIn delay={200}>
+        <FadeIn delay={150}>
           <FoodSection />
         </FadeIn>
       </div>

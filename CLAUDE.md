@@ -6,12 +6,15 @@
 
 ## Tech Stack
 - Language: JavaScript (React)
-- Styling: Tailwind CSS (프리미엄 볼드 & 모던 UI)
+- Styling: Tailwind CSS (볼드 & 모던 UI)
 - State Management: Zustand (store/ 폴더 기반)
 - Icons: Lucide-React
 - Animation: Tailwind-animate,
-- etc: react-dropzone
+- etc: react-dropzone, toast
 - API: axios
+
+## project color (tailwindCSS)
+- 메인 컬러 : **-blue-600
 
 
 ## Project Structure
@@ -22,11 +25,14 @@ src/
 │   ├── common/      # 공통 사용 컴포넌트 (SubHeader, Footer 등)
 │   ├── detail/      # 상세 페이지용 섹션 (Menu, Event, Fuel)
 │   ├── home/        # 홈/지도 관련 컴포넌트
+│   ├── home/        # 홈/지도 관련 컴포넌트
+│   ├── my/          # 마이페이지 관련 컴포넌트
+│   ├── ranking/     # 랭킹 관련 컴포넌트
 │   ├── review/      # 리뷰 작성 관련 (StarRating, TagSystem, PhotoUploader)
 │   └── search/      # 검색 필터 및 결과 리스트
-├── data/            # Mock 데이터 (SearchMock)
+├── hook/            # 커스텀 훅 (useDetailInfo, useReviewForm 등)
 ├── pages/           # 라우트 단위 페이지 (Detail, MyReview, ReviewForm 등)
-├── store/           # Zustand 상태 관리 (useUserStore, useSavedStore)
+├── store/           # Zustand 상태 관리 (useUserStore, useSavedStore 등)
 ├── App.jsx          # 메인 라우팅 및 레이아웃 설정
 └── main.jsx         # 엔트리 포인트
 ```
