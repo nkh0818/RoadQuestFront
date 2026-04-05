@@ -11,9 +11,9 @@ const TAG_MAP = [
 ];
 
 export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
-
   const token = localStorage.getItem("accessToken");
   const fetchUser = useUserStore((state) => state.fetchUser);
+  const addReviewToTop = useUserStore((state) => state.addReviewToTop);
 
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(0);
@@ -22,18 +22,15 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
   // 다이나믹 태그
   const dynamicTags = useMemo(() => {
     if (!content.trim()) return [];
     const detected = TAG_MAP.filter((item) =>
-      item.keywords.some((key) => content.includes(key))
+      item.keywords.some((key) => content.includes(key)),
     ).map((item) => item.tag);
     return [...new Set(detected)].filter((tag) => !tagList.includes(tag));
   }, [content, tagList]);
 
-
-  
   // 태그 관리 (추가/삭제)
   const addTag = (tag) => {
     if (!tagList.includes(tag)) setTagList((prev) => [...prev, tag]);
@@ -43,11 +40,13 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
     setTagList((prev) => prev.filter((v) => v !== tag));
   };
 
-
   // 사진 처리 (드롭/삭제)
   const handlePhotoDrop = (files) => {
     setPhotoFiles((prev) => [...prev, ...files]);
-    setPhotoPreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
+    setPhotoPreviews((prev) => [
+      ...prev,
+      ...files.map((f) => URL.createObjectURL(f)),
+    ]);
   };
 
   const handlePhotoRemove = (idx) => {
@@ -55,12 +54,11 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
     setPhotoFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
-
   // 리뷰 등록
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0 || content.length < 5)
-      return toast.error("별점과 내용을 5글자 이상 입력해 주세요.")
+      return toast.error("별점과 내용을 5글자 이상 입력해 주세요.");
 
     setIsSubmitting(true);
 
@@ -69,25 +67,33 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
         restAreaId: restAreaId,
         rating: rating,
         content: content,
-        tag: tagList.join(','),
+        tags: tagList,
+        imageUrl: photoPreviews[0] || "",
         userLat: verifyStatus?.lat || 37.1234,
         userLon: verifyStatus?.lon || 127.1234,
       };
 
-      console.log("보내는 데이터 확인:", reviewData);
+      console.log("보내준 Review 데이터 확인:", reviewData);
 
-      await axios.post('/api/reviews', reviewData, {
+      const response = await axios.post("/api/reviews", reviewData, {
         headers: {
-    Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      if (response.data && addReviewToTop) {
+        addReviewToTop(response.data);
+      }
+
       if (fetchUser) await fetchUser(true);
 
       onSuccess({
         points: verifyStatus === "verified" ? 200 : 100,
         xp: 30,
         isVerified: verifyStatus === "verified",
+        newReview: response.data
       });
+      toast.success("리뷰를 등록했습니다!");
     } catch (error) {
       toast.error("리뷰 작성에 실패했습니다.");
       console.log("리뷰 저장 실패:", error.response?.data || error.message);
@@ -97,10 +103,19 @@ export function useReviewForm({ verifyStatus, onSuccess, restAreaId }) {
   };
 
   return {
-    content, setContent,
-    rating, setRating,
-    tagList, dynamicTags, addTag, removeTag,
-    photoFiles, photoPreviews, handlePhotoDrop, handlePhotoRemove,
-    isSubmitting, handleSubmit,
+    content,
+    setContent,
+    rating,
+    setRating,
+    tagList,
+    dynamicTags,
+    addTag,
+    removeTag,
+    photoFiles,
+    photoPreviews,
+    handlePhotoDrop,
+    handlePhotoRemove,
+    isSubmitting,
+    handleSubmit,
   };
 }
