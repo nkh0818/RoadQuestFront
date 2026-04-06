@@ -1,31 +1,48 @@
 import { create } from 'zustand';
-import { fetchMyReviews, deleteReviewApi } from '../api/review';
+import axios from 'axios';
+import { deleteReviewApi } from '../api/review';
 
 const useReviewStore = create((set, get) => ({
-  reviews: [],
+  reviews: [],      // 전체 리뷰 목록 (커뮤니티)
   isLoading: false,
+  page: 0,          // 페이징용
+  hasMore: true,    // 다음 페이지 유무
 
-  // 리뷰 데이터
-  fetchReviews: async (force = false) => {
-    if (get().reviews.length > 0 && !force) return;
+  // 1️⃣ 리뷰 데이터 가져오기 (커뮤니티/전체)
+  fetchReviews: async (pageNum = 0) => {
+    if (get().isLoading) return;
 
     set({ isLoading: true });
     try {
-       const data = await fetchMyReviews();
-      set({ reviews: data });
+      // 백엔드 페이징 API 호출
+      const res = await axios.get(`/api/reviews/community?page=${pageNum}&size=10`);
+      const { content, last } = res.data;
+
+      set((state) => ({
+        reviews: pageNum === 0 ? content : [...state.reviews, ...content],
+        page: pageNum,
+        hasMore: !last,
+        isLoading: false
+      }));
     } catch (error) {
-      console.error("리뷰 로딩 실패:", error);
-    } finally {
+      console.error("리뷰 로드 실패:", error);
       set({ isLoading: false });
     }
   },
 
-  // 리뷰 삭제
-  deleteReview: async (id) => {
+  // 새 리뷰 추가 (작성 즉시 맨 위로)
+  addReview: (newReview) => {
+    set((state) => ({
+      reviews: [newReview, ...state.reviews]
+    }));
+  },
+
+  // 리뷰 삭제 (서버 연동 + 로컬 상태 반영)
+  deleteReview: async (reviewId) => {
     try {
-      await deleteReviewApi(id); // 🚀 서버에서 삭제
+      await deleteReviewApi(reviewId); // 실제 서버 삭제
       set((state) => ({
-        reviews: state.reviews.filter((r) => r.id !== id)
+        reviews: state.reviews.filter((r) => r.reviewId !== reviewId)
       }));
     } catch (error) {
       console.error("리뷰 삭제 실패:", error);
@@ -33,11 +50,11 @@ const useReviewStore = create((set, get) => ({
     }
   },
 
-  // 좋아요 토글 (실시간 카운트 반영)
+  // 좋아요 토글 (실시간 반영)
   toggleLike: (reviewId) => {
     set((state) => ({
       reviews: state.reviews.map((r) =>
-        r.id === reviewId
+        r.reviewId === reviewId
           ? { 
               ...r, 
               liked: !r.liked, 
@@ -48,34 +65,18 @@ const useReviewStore = create((set, get) => ({
     }));
   },
 
-  // 댓글 추가
+  // 댓글 로직 (필드명을 reviewId로 통일)
   addComment: (reviewId, text) => {
     const newComment = {
       id: Date.now(),
       author: "나(USER)",
       text,
-      date: new Date().toLocaleDateString().replace(/\.$/, ""), // YYYY.MM.DD 형식
+      date: new Date().toLocaleDateString().replace(/\.$/, ""),
     };
 
     set((state) => ({
       reviews: state.reviews.map((r) =>
-        r.id === reviewId ? { ...r, comments: [...r.comments, newComment] } : r
-      ),
-    }));
-  },
-
-  // 댓글 수정
-  editComment: (reviewId, commentId, newText) => {
-    set((state) => ({
-      reviews: state.reviews.map((r) =>
-        r.id === reviewId
-          ? {
-              ...r,
-              comments: r.comments.map((c) =>
-                c.id === commentId ? { ...c, text: newText } : c
-              ),
-            }
-          : r
+        r.reviewId === reviewId ? { ...r, comments: [...(r.comments || []), newComment] } : r
       ),
     }));
   },
@@ -84,7 +85,7 @@ const useReviewStore = create((set, get) => ({
   deleteComment: (reviewId, commentId) => {
     set((state) => ({
       reviews: state.reviews.map((r) =>
-        r.id === reviewId
+        r.reviewId === reviewId
           ? { ...r, comments: r.comments.filter((c) => c.id !== commentId) }
           : r
       ),

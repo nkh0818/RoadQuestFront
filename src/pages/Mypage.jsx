@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Settings, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
+// import { uploadImageToS3 } from "../api/review";
 
 import SubHeader from "../components/common/SubHeader";
 import LoadingSpinner from "../components/common/LoadingSpinner";
@@ -24,7 +25,18 @@ export default function MyPageView() {
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
-
+console.log("현재 로그인한 유저 데이터:", user);
+  // 프로필 업데이트 핸들러 (ProfileAvatar에서 호출)
+  const handleProfileUpdate = async (newImageUrl) => {
+    try {
+      // S3 업로드 성공 후 받은 URL을 프리뷰 상태에 저장하여 화면에 즉시 반영
+      setProfilePreviews([newImageUrl]);
+      toast.success("프로필 사진이 준비되었습니다. 저장 버튼을 눌러주세요!");
+    } catch (error) {
+      console.error("이미지 반영 실패:", error);
+      toast.error("이미지 반영 중 오류가 발생했습니다.");
+    }
+  };
 
   if (isLoading) return <LoadingSpinner message="로딩 중..." />;
   if (!user)
@@ -46,9 +58,16 @@ export default function MyPageView() {
       return;
     }
     try {
-      await changeNickname(tempNickname);
+      // 변경된 사진이 있으면 새 주소를, 없으면 기존 유저 사진 주소를 사용
+      const finalProfileImage = profilePreviews.length > 0 ? profilePreviews[0] : user.profileImage;
+      
+      // 닉네임과 함께 이미지 주소도 같이 변경 (스토어 함수가 지원해야 함)
+      await changeNickname(tempNickname, finalProfileImage); 
+      
       setIsEditing(false);
-      toast.success("닉네임이 변경되었습니다.");
+      setProfilePreviews([]); // 저장 후 프리뷰 초기화
+      toast.success("정보가 변경되었습니다.");
+      fetchUser(); // 데이터 최신화
     } catch {
       setTempNickname(user.nickname);
       toast.error("이미 사용 중인 닉네임이거나 오류가 발생했습니다.");
@@ -106,11 +125,16 @@ export default function MyPageView() {
       <section className="relative px-6 pt-6 pb-12 overflow-hidden">
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60" />
         <div className="relative flex flex-col items-center">
-          <ProfileAvatar
-            previewUrl={profilePreviews[0] ?? null}
-            isEditing={isEditing}
-            onDrop={(files) => setProfilePreviews([URL.createObjectURL(files[0])])}
-          />
+<ProfileAvatar
+  previewUrl={
+    profilePreviews[0] || 
+    user?.profileImage || 
+    user?.profileImageUrl || 
+    user?.image 
+  }
+  isEditing={isEditing}
+  onUpdate={handleProfileUpdate} 
+/>
           <div className="mt-6 text-center">
             <ProfileInfo
               user={user}
