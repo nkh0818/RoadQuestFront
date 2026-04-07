@@ -27,7 +27,7 @@ export const useUserStore = create((set, get) => ({
     get().updateNicknameInStore(updatedUserData);
   },
 
-  /** 부분 업데이트 (닉네임 변경) */
+  /** 부분 업데이트 */
   updateNicknameInStore: (authData) => {
     const { nickname, accessToken } = authData;
 
@@ -57,7 +57,6 @@ export const useUserStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const data = await fetchMe();
-      // console.log("서버에서 준 전체 데이터:", data);
 
       set({
         user: {
@@ -99,7 +98,6 @@ export const useUserStore = create((set, get) => ({
     const { user } = get();
     if (!user) return 0;
     const currentXp = Number(user.xp) || 0;
-    // 레벨업 기준이 100이라면 그대로 리턴
     return Math.min(currentXp, 100);
   },
 

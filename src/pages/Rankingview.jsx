@@ -1,60 +1,79 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import SubHeader from '../components/common/SubHeader';
-import PopularTab from '../components/Ranking/PopularTab';
-import ThemeTab from '../components/Ranking/ThemeTab';
+import SearchRanking from '../components/ranking/SearchRanking';
+import BestReviewRanking from '../components/ranking/BestReviewRanking';
+import UserExplorerRanking from '../components/ranking/UserExplorerRanking';
+import LowestGasPriceRanking from '../components/ranking/LowestGasPriceRanking';
+import HotPlaceRanking from '../components/ranking/PlaceRangking';
 
 export default function RankingView() {
-  const [activeTab, setActiveTab] = useState('popular');
+  const [rankingData, setRankingData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 현재 활성화된 탭에 따라 컴포넌트를 렌더링하는 함수
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'popular': return <PopularTab />;
-      case 'theme': return <ThemeTab />;
-      case 'review': return <ReviewTab />;
-      default: return <PopularTab />;
-    }
-  };
+  // 1. 백엔드 통합 API 호출
+  useEffect(() => {
+    const fetchRankings = async () => {
+      try {
+        const res = await axios.get('/api/ranking/totalrank');
+        setRankingData(res.data);
+      } catch (error) {
+        console.error("랭킹 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRankings();
+  }, []);
+
+  if (isLoading) return <RankingSkeleton />;
 
   return (
-    <div className="min-h-screen max-[600px]:mx-auto max-w-[600px] pb-24">
-      <SubHeader title="주간 랭킹" />
+    <div className="min-h-screen max-w-[600px] mx-auto bg-slate-50 pb-24">
+      <SubHeader title="주간 하이라이트" />
 
-      {/* 탭 */}
-      <div className="flex bg-white px-6 border-b border-slate-100 sticky top-[60px] z-10">
-        <TabBtn 
-          label="실시간" 
-          active={activeTab === 'popular'} 
-          onClick={() => setActiveTab('popular')} 
-        />
-        <TabBtn 
-          label="테마별" 
-          active={activeTab === 'theme'} 
-          onClick={() => setActiveTab('theme')} 
-        />
-      </div>
+      {/* 섹션 1: 실시간 인기 검색어 (Redis) */}
+      <SearchRanking data={rankingData?.hotSearchKeywords} />
 
-      {/* 탭 내용 */}
-      <main className="animate-in fade-in duration-500">
-        {renderContent()}
-      </main>
+      <hr className="border-t-8 border-slate-100" />
+
+      {/* 섹션 2: 지금 핫한 휴게소 (급상승) */}
+      <HotPlaceRanking data={rankingData?.trendingRestAreaNames}/>
+
+      <hr className="border-t-8 border-slate-100" />
+
+      {/* 섹션 3: 베스트 리뷰 (좋아요순) */}
+      <BestReviewRanking data={rankingData?.bestReviews} />
+
+      <hr className="border-t-8 border-slate-100" />
+
+      {/* 섹션 4: 이달의 탐험가 (유저 XP) */}
+      <UserExplorerRanking data={rankingData?.topExplorers} />
+
+      <hr className="border-t-8 border-slate-100" />
+
+      {/* 섹션 5: 전국 최저가 주유소 */}
+      <LowestGasPriceRanking data={rankingData?.lowestGasPrices} />
     </div>
   );
 }
 
-// 내부 탭 버튼 컴포넌트
-function TabBtn({ label, active, onClick }) {
+function RankingSkeleton() {
   return (
-    <button
-      onClick={onClick}
-      className={`flex-1 py-4 text-[15px] font-black transition-all relative ${
-        active ? 'text-blue-600' : 'text-slate-400'
-      }`}
-    >
-      {label}
-      {active && (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-full" />
-      )}
-    </button>
+    <div className="min-h-screen max-w-[600px] mx-auto bg-white pb-24 animate-pulse">
+      <div className="h-[60px] bg-slate-100 mb-6" /> {/* 헤더 부분 */}
+      
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="px-5 py-8 space-y-4">
+          <div className="h-6 bg-slate-100 rounded-md w-1/3 mb-6" /> {/* 제목 부분 */}
+          <div className="space-y-3">
+            <div className="h-20 bg-slate-50 rounded-[2rem]" />
+            <div className="h-20 bg-slate-50 rounded-[2rem]" />
+            <div className="h-20 bg-slate-50 rounded-[2rem]" />
+          </div>
+          <div className="h-4 bg-slate-100/50 my-8" /> {/* 구분선 */}
+        </div>
+      ))}
+    </div>
   );
 }

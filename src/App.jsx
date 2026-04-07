@@ -26,6 +26,7 @@ import InquiryModal from './components/common/InquiryModal';
 import { useInquiryStore } from './store/useInquiryStore';
 import { useUserStore } from './store/useUserStore';
 import { Toaster } from 'react-hot-toast';
+import ScrollToTop from './components/common/ScrollTop';
 
 function App() {
 
@@ -40,7 +41,10 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen max-w-[600px] mx-auto bg-white shadow-md flex flex-col relative overflow-hidden font-sans">
-        <Toaster position="top-center" reverseOrder={false} />
+        <Toaster position="bottom-right" reverseOrder={false} />
+
+        <ScrollToTop />
+
         {/* 헤더 */}
         <Header />
 
