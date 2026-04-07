@@ -10,12 +10,17 @@ import { useUserStore } from "../../store/useUserStore";
 import { useNavigate } from "react-router-dom";
 import useReviewStore from "../../store/useReviewStore";
 import { useSavedStore } from "../../store/useSavedStore";
+import toast from "react-hot-toast";
 
 export default function PassSection() {
   const { savedRestAreas, fetchFavorites } = useSavedStore();
 
   const { reviews, fetchReviews } = useReviewStore();
   const { user, isLoading, fetchUser, getXpPercentage } = useUserStore();
+
+  const userTitle = user?.currentTitle && user.currentTitle !== "신규 탐험가" 
+    ? user.currentTitle 
+    : "신규 여행자";
 
   const navigate = useNavigate();
 
@@ -77,10 +82,12 @@ export default function PassSection() {
       isSpecial: savedRestAreas.length > 0,
     },
     {
-      label: "타이틀 개수",
-      value: `${user?.userTitles?.length || 0}개`,
+      label: "보유 칭호",
+      value: `${user?.userTitles?.length || 1}개`, 
       icon: <Trophy size={18} />,
       iconBg: "bg-amber-50 text-amber-500",
+      isSpecial: true, // 칭호 페이지 생기면 클릭 유도
+      onClick: () => toast.error("칭호 목록 페이지는 준비 중이에요!"), // 나중에 navigate("/titles")
     },
     {
       label: "작성한 리뷰",
@@ -108,8 +115,7 @@ export default function PassSection() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="bg-slate-900 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.1em] shadow-lg shadow-slate-200">
-                  Lv.{user.level}{" "}
-                  {user.currentTitle?.titleName || "신규 여행자"}
+                  Lv.{user?.level || 1} {userTitle}
                 </span>
               </div>
               <h3 className="text-[26px] font-black text-slate-900 leading-tight tracking-tighter">

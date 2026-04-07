@@ -1,6 +1,10 @@
 import { Award } from "lucide-react";
 
 export default function ProfileInfo({ user, isEditing, tempNickname, onNicknameChange }) {
+  const displayTitle = (user.currentTitle && user.currentTitle !== "칭호 없음")
+    ? user.currentTitle
+    : "신규 탐험가";
+
   return (
     <div className="space-y-2">
       {isEditing ? (
@@ -15,19 +19,12 @@ export default function ProfileInfo({ user, isEditing, tempNickname, onNicknameC
           <div className="flex items-center justify-center gap-1.5 text-blue-600">
             <Award size={14} fill="currentColor" fillOpacity={0.2} strokeWidth={2.5} />
             <span className="text-[12px] font-black uppercase tracking-wider">
-              LV.{user.level || 1} TRAVELER
+              LV.{user.level || 1} {displayTitle}
             </span>
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
             {user.nickname}
           </h2>
-          {user.currentTitle && (
-            <div className="mt-1">
-              <span className="text-[12px] font-extrabold text-yellow-500 bg-yellow-50 px-3 py-1 rounded-lg">
-                {user.currentTitle.titleName}
-              </span>
-            </div>
-          )}
         </div>
       )}
       <p className="text-[13px] font-bold text-slate-400">{user.email}</p>

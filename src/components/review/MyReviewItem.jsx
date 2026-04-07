@@ -86,7 +86,9 @@ export default function MyReviewItem({ review, onDelete, index }) {
                     <button
                       onClick={() => {
                         setShowMenu(false);
-                        navigate(`/review/edit/${rId}`);
+                        navigate(`/review/edit/${rId}`, {
+                          state: { review },
+                        });
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors text-left"
                     >

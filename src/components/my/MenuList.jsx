@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MessageSquare, Map, Gift, ChevronRight, LogOut } from "lucide-react";
+import { MessageSquare, Map, Gift, ChevronRight, LogOut, UserX } from "lucide-react";
 import FadeIn from "../common/FadeIn";
 
 const MENU_ITEMS = [
@@ -24,6 +24,13 @@ const MENU_ITEMS = [
     color: "text-amber-500",
     bg: "bg-amber-50",
     path: "/coupons",
+  },
+  {
+    title: "차단 유저 관리",
+    icon: <UserX size={20} strokeWidth={2.5} />,
+    color: "text-rose-500",
+    bg: "bg-rose-50",
+    path: "/blocked-users",
   },
 ];
 

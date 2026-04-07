@@ -1,28 +1,42 @@
-import { create } from 'zustand';
-import axios from 'axios';
-import { deleteReviewApi } from '../api/review';
+import { create } from "zustand";
+import axios from "axios";
+import { deleteReviewApi } from "../api/review";
 
 const useReviewStore = create((set, get) => ({
-  reviews: [],      // 전체 리뷰 목록 (커뮤니티)
+  reviews: [], // 전체 리뷰 목록 (커뮤니티)
   isLoading: false,
-  page: 0,          // 페이징용
-  hasMore: true,    // 다음 페이지 유무
+  page: 0, // 페이징용
+  hasMore: true, // 다음 페이지 유무
 
-  // 1️⃣ 리뷰 데이터 가져오기 (커뮤니티/전체)
+  // 리뷰 데이터 가져오기 (커뮤니티/전체)
   fetchReviews: async (pageNum = 0) => {
     if (get().isLoading) return;
 
     set({ isLoading: true });
     try {
       // 백엔드 페이징 API 호출
-      const res = await axios.get(`/api/reviews/community?page=${pageNum}&size=10`);
+      const token = localStorage.getItem("accessToken");
+
+      const res = await axios.get(
+        `/api/reviews/community?page=${pageNum}&size=10`,
+        {
+          headers: token
+            ? {
+                Authorization: token.startsWith("Bearer ")
+                  ? token
+                  : `Bearer ${token}`,
+              }
+            : {},
+        },
+      );
+
       const { content, last } = res.data;
 
       set((state) => ({
         reviews: pageNum === 0 ? content : [...state.reviews, ...content],
         page: pageNum,
         hasMore: !last,
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
       console.error("리뷰 로드 실패:", error);
@@ -33,7 +47,7 @@ const useReviewStore = create((set, get) => ({
   // 새 리뷰 추가 (작성 즉시 맨 위로)
   addReview: (newReview) => {
     set((state) => ({
-      reviews: [newReview, ...state.reviews]
+      reviews: [newReview, ...state.reviews],
     }));
   },
 
@@ -42,7 +56,7 @@ const useReviewStore = create((set, get) => ({
     try {
       await deleteReviewApi(reviewId); // 실제 서버 삭제
       set((state) => ({
-        reviews: state.reviews.filter((r) => r.reviewId !== reviewId)
+        reviews: state.reviews.filter((r) => r.reviewId !== reviewId),
       }));
     } catch (error) {
       console.error("리뷰 삭제 실패:", error);
@@ -55,17 +69,58 @@ const useReviewStore = create((set, get) => ({
     set((state) => ({
       reviews: state.reviews.map((r) =>
         r.reviewId === reviewId
-          ? { 
-              ...r, 
-              liked: !r.liked, 
-              likeCount: r.liked ? r.likeCount - 1 : r.likeCount + 1 
+          ? {
+              ...r,
+              liked: !r.liked,
+              likeCount: r.liked ? r.likeCount - 1 : r.likeCount + 1,
             }
-          : r
+          : r,
       ),
     }));
   },
 
-  // 댓글 로직 (필드명을 reviewId로 통일)
+  //유저 차단
+  blockUser: async (blockedUserId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      console.log("전송 시도 토큰:", token);
+
+      if (!token || token === "null" || token === "undefined") {
+        alert("로그인 정보가 만료되었습니다. 다시 로그인해주세요.");
+        return;
+      }
+
+      const response = await axios.post(
+        "/api/blocks",
+        { blockedUserId: blockedUserId },
+        {
+          headers: {
+            Authorization: token.startsWith("Bearer ")
+              ? token
+              : `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error("차단 실패 상세:", error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  unblockUser: async (blockedUserId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.delete(`/api/blocks/${blockedUserId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // 성공 시 로컬 상태 업데이트 (목록에서 제거 등)
+    } catch (error) {
+      console.error("해제 실패:", error);
+    }
+  },
+
+  // 댓글 로직
   addComment: (reviewId, text) => {
     const newComment = {
       id: Date.now(),
@@ -76,7 +131,9 @@ const useReviewStore = create((set, get) => ({
 
     set((state) => ({
       reviews: state.reviews.map((r) =>
-        r.reviewId === reviewId ? { ...r, comments: [...(r.comments || []), newComment] } : r
+        r.reviewId === reviewId
+          ? { ...r, comments: [...(r.comments || []), newComment] }
+          : r,
       ),
     }));
   },
@@ -87,7 +144,7 @@ const useReviewStore = create((set, get) => ({
       reviews: state.reviews.map((r) =>
         r.reviewId === reviewId
           ? { ...r, comments: r.comments.filter((c) => c.id !== commentId) }
-          : r
+          : r,
       ),
     }));
   },

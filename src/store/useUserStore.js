@@ -27,7 +27,7 @@ export const useUserStore = create((set, get) => ({
     get().updateNicknameInStore(updatedUserData);
   },
 
-  /** 부분 업데이트 (닉네임 변경) */
+  /** 부분 업데이트 */
   updateNicknameInStore: (authData) => {
     const { nickname, accessToken } = authData;
 
@@ -45,11 +45,7 @@ export const useUserStore = create((set, get) => ({
 
   /** 새로고침 호출 */
   fetchUser: async (force = false) => {
-    const { isLoading, user } = get();
-
-    if (!force) {
-      if (isLoading || user) return;
-    }
+    if (!force && get().user) return;
 
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -57,7 +53,6 @@ export const useUserStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const data = await fetchMe();
-      // console.log("서버에서 준 전체 데이터:", data);
 
       set({
         user: {
@@ -69,6 +64,7 @@ export const useUserStore = create((set, get) => ({
         accessToken: token,
         isLoading: false,
       });
+      console.log("유저 정보 동기화 완료:", data.currentTitle);
     } catch (error) {
       console.error("fetchUser 에러 발생:", error);
       set({ isLoading: false });
@@ -99,7 +95,6 @@ export const useUserStore = create((set, get) => ({
     const { user } = get();
     if (!user) return 0;
     const currentXp = Number(user.xp) || 0;
-    // 레벨업 기준이 100이라면 그대로 리턴
     return Math.min(currentXp, 100);
   },
 
