@@ -163,6 +163,7 @@ function ReviewCard({ post, currentUserNickname }) {
 
   return (
     <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100/60 relative animate-in fade-in duration-500 pb-6">
+      {/* [상단] 헤더: 유저 정보 및 메뉴 버튼 */}
       <div className="p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 bg-slate-100 rounded-full border-2 border-white shadow-sm overflow-hidden">
