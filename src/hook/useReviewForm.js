@@ -25,7 +25,7 @@ export function useReviewForm({
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(0);
   const [tagList, setTagList] = useState([]);
-  const [photoFiles, setPhotoFiles] = useState([]); // 필요 시 유지
+  const [photoFiles, setPhotoFiles] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,6 +34,8 @@ export function useReviewForm({
       setContent(initialData.content || "");
       setRating(initialData.rating || 0);
       setTagList(initialData.tagList || initialData.tags || []);
+      // 기존 이미지가 있다면 프리뷰에 넣어줌
+      if (initialData.imageUrl) setPhotoPreviews([initialData.imageUrl]);
     }
   }, [initialData]);
 
@@ -53,18 +55,14 @@ export function useReviewForm({
     setTagList((prev) => prev.filter((v) => v !== tag));
   };
 
-  // 사진 처리 (드롭/삭제) - S3 업로드 로직 통합
+  // 사진 처리 (S3 업로드 통합)
   const handlePhotoDrop = async (files) => {
-    const loadingToast = toast.loading("이미지를 S3에 업로드 중...");
+    const loadingToast = toast.loading("이미지를 업로드 중...");
     try {
-      // 1. 파일을 받자마자 S3로 업로드 실행
       const uploadPromises = files.map(file => uploadImageToS3(file));
       const s3Urls = await Promise.all(uploadPromises);
 
-      // 2. 서버가 준 진짜 S3 주소들을 프리뷰 상태에 저장
       setPhotoPreviews((prev) => [...prev, ...s3Urls]);
-      
-      // 기존 로직 유지를 위해 파일 객체도 저장 (필요 없으면 제거 가능)
       setPhotoFiles((prev) => [...prev, ...files]);
 
       toast.success("업로드 완료!", { id: loadingToast });
@@ -82,16 +80,17 @@ export function useReviewForm({
   const handleSubmit = async (e, currentRestAreaId) => {
     if (e) e.preventDefault();
 
-    // 1. 최신 ID 결정 (View에서 넘겨준 ID -> 훅 호출 시 받은 ID -> URL ID 순)
+    // 1. 최신 ID 결정 (View에서 넘겨준 ID 우선)
     const finalId = currentRestAreaId || restAreaId;
 
-    // 2. 유효성 검사 (ID가 'new'나 'undefined'면 절대 안 넘어감)
+    // 2. 유효성 검사
     if (!finalId || finalId === "new" || finalId === "undefined") {
       return toast.error("리뷰를 작성할 휴게소를 먼저 선택해 주세요.");
     }
 
     if (rating === 0 || content.length < 5) {
       return toast.error("별점과 내용을 5글자 이상 입력해 주세요.");
+    }
 
     setIsSubmitting(true);
 
@@ -101,19 +100,16 @@ export function useReviewForm({
         rating: rating,
         content: content,
         tags: tagList,
-        // S3 서버 URL 주소
         imageUrl: photoPreviews[0] || "", 
-        userLat: verifyStatus?.lat || 37.1234,
-        userLon: verifyStatus?.lon || 127.1234,
+        // 🚩 GPS 정보가 없을 경우를 대비한 안전장치 (백엔드 @NotNull 대응)
+        userLat: userLocation?.latitude || 0.0,
+        userLon: userLocation?.longitude || 0.0,
       };
 
-let response;
-      // 1. API 주소 베이스 설정 (환경 변수 활용)
       const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+      let response;
 
-      // 2. 등록(POST) vs 수정(PUT) 분기 처리 (기존 로직 유지)
       if (initialData?.reviewId) {
-        // 수정 모드
         response = await axios.put(`${API_BASE_URL}/api/reviews/${initialData.reviewId}`, reviewData, {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -121,8 +117,6 @@ let response;
           },
         });
       } else {
-        // 등록 모드 (S3 URL 등이 포함된 reviewData 전송)
-        console.log("보내준 Review 데이터 확인 (S3 URL 포함):", reviewData);
         response = await axios.post(`${API_BASE_URL}/api/reviews`, reviewData, {
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -131,7 +125,6 @@ let response;
         });
       }
 
-      // 3. 성공 후 상태 업데이트
       if (response.data && addReviewToTop) {
         addReviewToTop(response.data);
       }
@@ -145,12 +138,9 @@ let response;
         newReview: response.data || null,
       });
 
-      toast.success(
-        initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!",
-      );
+      toast.success(initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!");
     } catch (error) {
-      const errorMsg =
-        error.response?.data?.message || "처리 중 오류가 발생했습니다.";
+      const errorMsg = error.response?.data?.message || "처리 중 오류가 발생했습니다.";
       toast.error(errorMsg);
       console.error("Review 처리 실패:", error.response?.data || error.message);
     } finally {
@@ -159,19 +149,12 @@ let response;
   };
 
   return {
-    content,
-    setContent,
-    rating,
-    setRating,
-    tagList,
-    dynamicTags,
-    addTag,
-    removeTag,
-    photoFiles,
-    photoPreviews,
-    handlePhotoDrop,
-    handlePhotoRemove,
-    isSubmitting,
-    handleSubmit,
+    content, setContent,
+    rating, setRating,
+    tagList, dynamicTags,
+    addTag, removeTag,
+    photoFiles, photoPreviews,
+    handlePhotoDrop, handlePhotoRemove,
+    isSubmitting, handleSubmit,
   };
 }
