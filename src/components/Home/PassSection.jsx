@@ -59,7 +59,8 @@ export default function PassSection() {
   }
 
   const handleReviewClick = () => {
-    if (reviewCount === 0) navigate("/history"); //여기서 여행기록으로 연결하고 -> 여행기록에서 휴게소 클릭하면 상세페이지로 이동하거나 바로 리뷰페이지로 이어지는 경험 필요함
+    if (reviewCount === 0) navigate("/my-reviews"); //여기서 여행기록으로 연결하고 -> 여행기록에서 휴게소 클릭하면 상세페이지로 이동하거나 바로 리뷰페이지로 이어지는 경험 필요함
+    // 리뷰로 다시 바꿈! 여행기록에서 안뜸
   };
 
   const reviewCount = user?.reviews?.length || 0;
