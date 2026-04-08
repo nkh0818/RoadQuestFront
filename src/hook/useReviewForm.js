@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useUserStore } from "../store/useUserStore";
+import { uploadImageToS3 } from "../api/review";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -18,7 +19,7 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(0);
   const [tagList, setTagList] = useState([]);
-  const [photoFiles, setPhotoFiles] = useState([]);
+  const [photoFiles, setPhotoFiles] = useState([]); // 필요 시 유지
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,13 +49,25 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     setTagList((prev) => prev.filter((v) => v !== tag));
   };
 
-  // 사진 처리 (드롭/삭제)
-  const handlePhotoDrop = (files) => {
-    setPhotoFiles((prev) => [...prev, ...files]);
-    setPhotoPreviews((prev) => [
-      ...prev,
-      ...files.map((f) => URL.createObjectURL(f)),
-    ]);
+  // 사진 처리 (드롭/삭제) - S3 업로드 로직 통합
+  const handlePhotoDrop = async (files) => {
+    const loadingToast = toast.loading("이미지를 S3에 업로드 중...");
+    try {
+      // 1. 파일을 받자마자 S3로 업로드 실행
+      const uploadPromises = files.map(file => uploadImageToS3(file));
+      const s3Urls = await Promise.all(uploadPromises);
+
+      // 2. 서버가 준 진짜 S3 주소들을 프리뷰 상태에 저장
+      setPhotoPreviews((prev) => [...prev, ...s3Urls]);
+      
+      // 기존 로직 유지를 위해 파일 객체도 저장 (필요 없으면 제거 가능)
+      setPhotoFiles((prev) => [...prev, ...files]);
+
+      toast.success("업로드 완료!", { id: loadingToast });
+    } catch (error) {
+      console.error("S3 업로드 에러:", error);
+      toast.error("이미지 업로드에 실패했습니다.", { id: loadingToast });
+    }
   };
 
   const handlePhotoRemove = (idx) => {
@@ -62,13 +75,11 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     setPhotoFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  // 리뷰 등록
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // 유효성 검사
-    if (rating === 0 || content.length < 5) {
+    if (rating === 0 || content.length < 5)
       return toast.error("별점과 내용을 5글자 이상 입력해 주세요.");
-    }
 
     setIsSubmitting(true);
 
@@ -79,33 +90,41 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
         rating: rating,
         content: content,
         tags: tagList,
-        imageUrl: photoPreviews[0] || "", // 현재는 단일 이미지 처리
+        // S3 서버 URL 주소
+        imageUrl: photoPreviews[0] || "", 
         userLat: verifyStatus?.lat || 37.1234,
         userLon: verifyStatus?.lon || 127.1234,
       };
 
-      let response;
+let response;
+      // 1. API 주소 베이스 설정 (환경 변수 활용)
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
-      // 2. 등록(POST) vs 수정(PUT) 분기 처리
+      // 2. 등록(POST) vs 수정(PUT) 분기 처리 (기존 로직 유지)
       if (initialData?.reviewId) {
-        // 수정 모드: @PutMapping("/{reviewId}") 호출
-        response = await axios.put(`/api/reviews/${initialData.reviewId}`, reviewData, {
-          headers: { Authorization: `Bearer ${token}` },
+        // 수정 모드
+        response = await axios.put(`${API_BASE_URL}/api/reviews/${initialData.reviewId}`, reviewData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json" 
+          },
         });
       } else {
-        // 등록 모드: @PostMapping 호출
-        response = await axios.post("/api/reviews", reviewData, {
-          headers: { Authorization: `Bearer ${token}` },
+        // 등록 모드 (S3 URL 등이 포함된 reviewData 전송)
+        console.log("보내준 Review 데이터 확인 (S3 URL 포함):", reviewData);
+        response = await axios.post(`${API_BASE_URL}/api/reviews`, reviewData, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json" 
+          },
         });
       }
 
       // 3. 성공 후 상태 업데이트
-      // 신규 등록 시에만 리스트 상단에 추가 (수정 시에는 목록 재조회가 일반적)
-      if (!initialData && response.data && addReviewToTop) {
+      if (response.data && addReviewToTop) {
         addReviewToTop(response.data);
       }
-
-      // 유저 정보(포인트 등) 갱신
+      
       if (fetchUser) await fetchUser(true);
 
       // 콜백 실행 (포인트 팝업 등을 위해 결과 전달)

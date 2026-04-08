@@ -46,6 +46,7 @@ export const fetchMe = async () => {
   return response.data;
 };
 
+// 닉네임 수정 (@PatchMapping("/nickname"))
 export const updateNickname = async (newNickname, profileImage) => {
   const token = localStorage.getItem("accessToken");
 
