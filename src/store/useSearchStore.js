@@ -10,23 +10,20 @@ const useSearchStore = create((set, get) => ({
   page: 0,
   hasMore: true,
 
-  fetchInitialData: async (pageNum) => {
+  fetchInitialData: async (pageNum = 0) => {
     if (get().isLoading) return;
     
     set({ isLoading: true });
 
     try {
       const res = await axios.get(`/api/restareas/random?size=10`); 
-      
-      const fetchedData = Array.isArray(res.data) ? res.data : []; 
+      const fetchedData = Array.isArray(res.data) ? res.data : (res.data.content || []);
 
-      const isLast = fetchedData.length < 10; 
-
-      set((state) => ({
-        searchResults: pageNum === 0 ? fetchedData : [...state.searchResults, ...fetchedData],
+      set({
+        searchResults: pageNum === 0 ? fetchedData : [...get().searchResults, ...fetchedData],
         page: pageNum,
-        hasMore: !isLast, 
-      }));
+        hasMore: fetchedData.length === 10,
+      });
     } catch (error) {
       console.error("데이터 로드 실패:", error);
     } finally {
@@ -34,26 +31,27 @@ const useSearchStore = create((set, get) => ({
     }
   },
 
+  // 검색어 설정 및 검색 실행
   setSearchTerm: async (term) => {
-    // 검색어 상태 업데이트 및 페이지 리셋
-    set({ searchTerm: term, page: 0 });
-    if (!term || term.trim() === "") {
+    const trimmedTerm = term?.trim() || "";
+
+    set({ searchTerm: trimmedTerm, page: 0, searchResults: [] });
+
+    if (!trimmedTerm) {
       get().fetchInitialData(0);
       return;
     }
 
     set({ isLoading: true });
     try {
-      await axios.post(`/api/ranking/record`, null, {
-        params: { keyword: term }
-      });
+      axios.post(`/api/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`).catch(() => {});
 
       const res = await axios.get(
-        `/api/restareas/search-name?keyword=${encodeURIComponent(term)}&page=0&size=10`
+        `/api/restareas/search-name?keyword=${encodeURIComponent(trimmedTerm)}&page=0&size=10`
       );
       
       const data = res.data.content || [];
-      const isLast = res.data.last;
+      const isLast = res.data.last !== undefined ? res.data.last : data.length < 10;
 
       set({ 
         searchResults: data,
@@ -94,3 +92,4 @@ const useSearchStore = create((set, get) => ({
 }));
 
 export default useSearchStore;
+

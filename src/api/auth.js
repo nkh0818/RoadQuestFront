@@ -46,8 +46,7 @@ export const fetchMe = async () => {
   return response.data;
 };
 
-// 닉네임 수정 (@PatchMapping("/nickname"))
-export const updateNickname = async (newNickname) => {
+export const updateNickname = async (newNickname, profileImage) => {
   const token = localStorage.getItem("accessToken");
 
   if (!token) {
@@ -55,7 +54,10 @@ export const updateNickname = async (newNickname) => {
   }
 
   const response = await api.patch("/auth/nickname", 
-    { nickname: newNickname },
+    { 
+      nickname: newNickname, 
+      profileImage: profileImage //
+    },
     {
       headers: {
         Authorization: `Bearer ${token}`,
