@@ -27,6 +27,7 @@ import { useInquiryStore } from './store/useInquiryStore';
 import { useUserStore } from './store/useUserStore';
 import { Toaster } from 'react-hot-toast';
 import ScrollToTop from './components/common/ScrollTop';
+import AiGuideResultView from './pages/AiGuideResult';
 
 function App() {
 
@@ -63,6 +64,8 @@ function App() {
             {/* quickmenu */}
             {/* search */}
             <Route path="/route" element={<RouteResultPage />}/>
+            <Route path="/ai-guide-result" element={<AiGuideResultView />} />
+
             <Route path="ai-guide" element={<RouteGuideView />} />
             <Route path="/search" element={<Search />} />
             <Route path="/detail/:id" element={<Detail />} />
@@ -75,7 +78,8 @@ function App() {
 
             {/* reviews */}
             <Route path="/my-reviews" element={<MyReviewListView />} />
-            <Route path="/review/write/:id" element={<ReviewFormView />} />
+            <Route path="/review/write" element={<ReviewFormView />} />
+            <Route path="/review/write/:id?" element={<ReviewFormView />} />
             <Route path="/review/edit/:id" element={<ReviewFormView />} />
 
             {/* community */}

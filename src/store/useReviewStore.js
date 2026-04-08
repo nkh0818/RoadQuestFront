@@ -8,6 +8,13 @@ const useReviewStore = create((set, get) => ({
   page: 0,          // 페이징용
   hasMore: true,    // 다음 페이지 유무
 
+  fetchNextPage: () => {
+    const { page, hasMore, isLoading, fetchReviews } = get();
+    if (!isLoading && hasMore) {
+      fetchReviews(page + 1);
+    }
+  },
+
   // 1️⃣ 리뷰 데이터 가져오기 (커뮤니티/전체)
   fetchReviews: async (pageNum = 0) => {
     if (get().isLoading) return;
@@ -60,33 +67,6 @@ const useReviewStore = create((set, get) => ({
               liked: !r.liked, 
               likeCount: r.liked ? r.likeCount - 1 : r.likeCount + 1 
             }
-          : r
-      ),
-    }));
-  },
-
-  // 댓글 로직 (필드명을 reviewId로 통일)
-  addComment: (reviewId, text) => {
-    const newComment = {
-      id: Date.now(),
-      author: "나(USER)",
-      text,
-      date: new Date().toLocaleDateString().replace(/\.$/, ""),
-    };
-
-    set((state) => ({
-      reviews: state.reviews.map((r) =>
-        r.reviewId === reviewId ? { ...r, comments: [...(r.comments || []), newComment] } : r
-      ),
-    }));
-  },
-
-  // 댓글 삭제
-  deleteComment: (reviewId, commentId) => {
-    set((state) => ({
-      reviews: state.reviews.map((r) =>
-        r.reviewId === reviewId
-          ? { ...r, comments: r.comments.filter((c) => c.id !== commentId) }
           : r
       ),
     }));
