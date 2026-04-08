@@ -25,7 +25,6 @@ export default function DetailInfoSection({ data }) {
           }
         >
           <div className="relative bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-7 rounded-[2.5rem] border border-indigo-100 shadow-inner">
-            {/* 태그 영역: 문자열을 쉼표로 쪼개서 해시태그 형태로 출력 */}
             <div className="flex flex-wrap gap-2 mb-6">
               {info?.aiTags && Array.isArray(info.aiTags) ? (
                 info.aiTags.map((tag, i) => (
@@ -54,19 +53,19 @@ export default function DetailInfoSection({ data }) {
               <div className="mt-4 text-[12px] text-slate-400 font-medium">
                 이 데이터는 AI가 최근 리뷰들을 분석한 결과입니다. (
                 {info.aiScore === "POSITIVE"
-                  ? "🥰 만족도 높음"
+                  ? "만족도 높음"
                   : info.aiScore === "NEGATIVE"
-                    ? "🤔 주의 필요"
-                    : "😐 보통"}
+                    ? "주의 필요"
+                    : "보통"}
                 )
               </div>
             )}
           </div>
         </InfoSection>
       ) : (
-        /* AI 데이터가 없을 때만 보여주는 안내문 */
-        <p className="text-center text-slate-400 text-[13px] font-bold py-10">
-          리뷰가 더 쌓이면 AI 분석이 시작됩니다! 🥔
+        /* AI 데이터가 없을 때 보여주는 안내문 */
+        <p className="text-center text-slate-400 text-[15px] font-bold py-10">
+          리뷰가 더 쌓이면 AI 분석이 시작됩니다!
         </p>
       )}
 
@@ -78,8 +77,8 @@ export default function DetailInfoSection({ data }) {
       >
         {!sortedEvents || sortedEvents.length === 0 ? (
           <div className="flex items-center justify-center py-10 bg-white rounded-[2rem] border border-slate-100">
-            <p className="text-[13px] font-bold text-slate-300">
-              이벤트 정보가 없습니다.
+            <p className="text-[13px] font-bold text-slate-400">
+              이 휴게소의 이벤트가 진행되면 바로 보여드릴게요!
             </p>
           </div>
         ) : (

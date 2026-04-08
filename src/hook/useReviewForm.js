@@ -10,7 +10,13 @@ const TAG_MAP = [
   { keywords: ["풍경", "전망", "뷰"], tag: "뷰맛집" },
 ];
 
-export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId }) {
+export function useReviewForm({
+  verifyStatus,
+  userLocation,
+  onSuccess,
+  initialData,
+  restAreaId,
+}) {
   const token = localStorage.getItem("accessToken");
   const fetchUser = useUserStore((state) => state.fetchUser);
   const addReviewToTop = useUserStore((state) => state.addReviewToTop);
@@ -30,7 +36,6 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     }
   }, [initialData]);
 
-  // 다이나믹 태그
   const dynamicTags = useMemo(() => {
     if (!content.trim()) return [];
     const detected = TAG_MAP.filter((item) =>
@@ -39,7 +44,6 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     return [...new Set(detected)].filter((tag) => !tagList.includes(tag));
   }, [content, tagList]);
 
-  // 태그 관리 (추가/삭제)
   const addTag = (tag) => {
     if (!tagList.includes(tag)) setTagList((prev) => [...prev, tag]);
   };
@@ -48,7 +52,6 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     setTagList((prev) => prev.filter((v) => v !== tag));
   };
 
-  // 사진 처리 (드롭/삭제)
   const handlePhotoDrop = (files) => {
     setPhotoFiles((prev) => [...prev, ...files]);
     setPhotoPreviews((prev) => [
@@ -62,10 +65,17 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     setPhotoFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // 유효성 검사
+  const handleSubmit = async (e, currentRestAreaId) => {
+    if (e) e.preventDefault();
+
+    // 1. 최신 ID 결정 (View에서 넘겨준 ID -> 훅 호출 시 받은 ID -> URL ID 순)
+    const finalId = currentRestAreaId || restAreaId;
+
+    // 2. 유효성 검사 (ID가 'new'나 'undefined'면 절대 안 넘어감)
+    if (!finalId || finalId === "new" || finalId === "undefined") {
+      return toast.error("리뷰를 작성할 휴게소를 먼저 선택해 주세요.");
+    }
+
     if (rating === 0 || content.length < 5) {
       return toast.error("별점과 내용을 5글자 이상 입력해 주세요.");
     }
@@ -73,53 +83,49 @@ export function useReviewForm({ verifyStatus, onSuccess, initialData, restAreaId
     setIsSubmitting(true);
 
     try {
-      // 1. 요청 데이터 구성
       const reviewData = {
-        restAreaId: restAreaId,
+        restAreaId: finalId,
         rating: rating,
         content: content,
         tags: tagList,
-        imageUrl: photoPreviews[0] || "", // 현재는 단일 이미지 처리
-        userLat: verifyStatus?.lat || 37.1234,
-        userLon: verifyStatus?.lon || 127.1234,
+        imageUrl: photoPreviews[0] || "",
+        userLat: userLocation?.latitude || 0.0,
+        userLon: userLocation?.longitude || 0.0,
       };
 
       let response;
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
-      // 2. 등록(POST) vs 수정(PUT) 분기 처리
       if (initialData?.reviewId) {
-        // 수정 모드: @PutMapping("/{reviewId}") 호출
-        response = await axios.put(`/api/reviews/${initialData.reviewId}`, reviewData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        response = await axios.put(
+          `/api/reviews/${initialData.reviewId}`,
+          reviewData,
+          config,
+        );
       } else {
-        // 등록 모드: @PostMapping 호출
-        response = await axios.post("/api/reviews", reviewData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        response = await axios.post("/api/reviews", reviewData, config);
       }
 
-      // 3. 성공 후 상태 업데이트
-      // 신규 등록 시에만 리스트 상단에 추가 (수정 시에는 목록 재조회가 일반적)
       if (!initialData && response.data && addReviewToTop) {
         addReviewToTop(response.data);
       }
 
-      // 유저 정보(포인트 등) 갱신
       if (fetchUser) await fetchUser(true);
 
-      // 콜백 실행 (포인트 팝업 등을 위해 결과 전달)
       onSuccess({
         points: verifyStatus === "verified" ? 200 : 100,
         xp: 30,
         isVerified: verifyStatus === "verified",
-        newReview: response.data || null
+        newReview: response.data || null,
       });
 
-      toast.success(initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!");
-      
+      toast.success(
+        initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!",
+      );
     } catch (error) {
-      toast.error(initialData ? "리뷰 수정에 실패했습니다." : "리뷰 등록에 실패했습니다.");
+      const errorMsg =
+        error.response?.data?.message || "처리 중 오류가 발생했습니다.";
+      toast.error(errorMsg);
       console.error("Review 처리 실패:", error.response?.data || error.message);
     } finally {
       setIsSubmitting(false);

@@ -21,13 +21,6 @@ export default function ProfileInfo({ user, isEditing, tempNickname, onNicknameC
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
             {user.nickname}
           </h2>
-          {user.currentTitle && (
-            <div className="mt-1">
-              <span className="text-[12px] font-extrabold text-yellow-500 bg-yellow-50 px-3 py-1 rounded-lg">
-                {user.currentTitle.titleName}
-              </span>
-            </div>
-          )}
         </div>
       )}
       <p className="text-[13px] font-bold text-slate-400">{user.email}</p>
