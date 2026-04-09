@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import axios from "axios"; // axios 추가
+import api from "../api/axios";
 
 import SubHeader from "../components/common/SubHeader";
 import StarRating from "../components/review/StarRating";
@@ -16,13 +16,13 @@ import { useReviewForm } from "../hook/useReviewForm";
 
 export default function ReviewFormView() {
   const { id } = useParams();
-
   const navigate = useNavigate();
   const location = useLocation();
+  
   const [rewardData, setRewardData] = useState(null);
   const [showSelector, setShowSelector] = useState(false);
 
-  // 수정모드 확인
+  // 이전 페이지 데이터
   const reviewData = location.state?.review;
   const isEdit = !!reviewData;
 
@@ -39,15 +39,14 @@ export default function ReviewFormView() {
     return null;
   });
 
-  // 2. 단건 조회 API 연동 및 유효성 검사
+  // 2. 단건 조회 API 연동 (id가 숫자로 올 때 자동 세팅)
   useEffect(() => {
-    console.log("🚩 [진입] URL 파라미터 ID:", id);
     const isValidId = id && id !== "undefined" && id !== "new";
 
-    if (isValidId && !isEdit) {
+    if (isValidId && !isEdit && !selectedRestArea) {
       const fetchRestArea = async () => {
         try {
-          const response = await axios.get(`/api/restareas/${id}`);
+          const response = await api.get(`/restareas/${id}`);
           const data = response.data;
           setSelectedRestArea({
             id: data.stdRestCd,
@@ -55,10 +54,8 @@ export default function ReviewFormView() {
             latitude: data.latitude,
             longitude: data.longitude,
           });
-          console.log("✅ [조회 성공] 가져온 휴게소 데이터:", data);
         } catch (error) {
           console.error("휴게소 정보 로드 실패:", error);
-          // 데이터 로드 실패 시 유저가 직접 선택할 수 있도록 유도
           setSelectedRestArea(null);
         }
       };
@@ -66,12 +63,11 @@ export default function ReviewFormView() {
     }
   }, [id, isEdit]);
 
-  // GPS 인증 훅
   const { verifyStatus, userLocation } = useLocationVerify(
-    selectedRestArea?.latitude ? selectedRestArea : null,
+    selectedRestArea?.latitude ? selectedRestArea : null
   );
 
-  // 4. 리뷰 제출 훅
+  // 3. 리뷰 제출 훅
   const {
     content,
     setContent,
@@ -97,15 +93,8 @@ export default function ReviewFormView() {
 
   const onHandleSubmit = (e) => {
     e.preventDefault();
+    // 🚩 수정 포인트 2: ID 전달 명확화
     submitToHook(e, selectedRestArea?.id);
-    console.log(
-      "🚀 [제출 버튼 클릭] 현재 selectedRestArea 상태:",
-      selectedRestArea,
-    );
-    console.log(
-      "🚀 [제출 버튼 클릭] 훅으로 보낼 최종 ID:",
-      selectedRestArea?.id,
-    );
   };
 
   const pageTitle = `${selectedRestArea?.name || "휴게소"} 리뷰 ${isEdit ? "수정" : "작성"}`;
@@ -141,9 +130,7 @@ export default function ReviewFormView() {
           <div className="sticky bottom-6 z-10">
             <button
               type="submit"
-              disabled={
-                isSubmitting || verifyStatus === "loading" || !selectedRestArea
-              }
+              disabled={isSubmitting || verifyStatus === "loading" || !selectedRestArea}
               className={`w-full py-5 rounded-[2rem] font-black text-white shadow-2xl transition-all flex items-center justify-center gap-2 ${
                 isSubmitting || !selectedRestArea
                   ? "bg-slate-300"
@@ -167,7 +154,6 @@ export default function ReviewFormView() {
       {showSelector && (
         <RestAreaSelectorModal
           onSelect={(area) => {
-            console.log("📍 모달에서 넘어온 원본 데이터:", area);
             setSelectedRestArea({
               id: area.restAreaCode || area.stdRestCd || area.id,
               name: area.restAreaName || area.dbName || area.name,

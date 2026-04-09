@@ -5,7 +5,6 @@ export default function BestReviewRanking({ data }) {
   const [scrollIndex, setScrollIndex] = useState(0);
   const scrollRef = useRef(null);
 
-  // 🚩 마우스 드래그를 위한 상태값들
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState(0);
 
@@ -21,13 +20,13 @@ export default function BestReviewRanking({ data }) {
     }
   };
 
-  // 2. 🚩 마우스 드래그 시작
+  // 2.
   const onDragStart = (e) => {
     setIsDrag(true);
     setStartX(e.pageX + scrollRef.current.scrollLeft);
   };
 
-  // 3. 🚩 마우스 드래그 중
+  // 3.
   const onDragMove = (e) => {
     if (!isDrag) return;
     e.preventDefault(); // 드래그 시 텍스트 선택 방지
@@ -36,15 +35,13 @@ export default function BestReviewRanking({ data }) {
     }
   };
 
-  // 4. 🚩 드래그 종료
+  // 4.
   const onDragEnd = () => {
     setIsDrag(false);
   };
 
   return (
     <section className="py-16 bg-slate-50/50 overflow-hidden">
-      {" "}
-      {/* 🚩 배경에 미세한 색감 추가 */}
       <div className="px-8 mb-10 flex justify-between items-end max-w-6xl mx-auto">
         <div className="text-left">
           <p className="text-blue-600 font-black text-[12px] tracking-[0.2em] mb-2 uppercase">
@@ -95,17 +92,18 @@ export default function BestReviewRanking({ data }) {
                 </p>
               </div>
 
-              <div className="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center">
-
-                <div className="flex flex-col max-w-[60%]">
-                  <span className="text-[14px] font-black text-slate-950 truncate">
+              <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col gap-1.5">
+                {/* 1. 휴게소 이름 (위) */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[15px] font-black text-slate-950 truncate">
                     {review.restAreaName || "전국 휴게소"}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-end">
-                  <span className="text-[13px] font-bold text-slate-600">
-                    @{review.nickname}
+                {/* 2. 작성자 닉네임 (아래) */}
+                <div className="flex items-center">
+                  <span className="text-[13px] font-bold text-slate-500">
+                    @{review.nickname || "익명"}
                   </span>
                 </div>
               </div>

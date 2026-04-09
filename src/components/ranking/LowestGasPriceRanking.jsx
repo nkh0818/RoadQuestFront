@@ -1,12 +1,24 @@
 import React from 'react';
-import { Fuel, Navigation, Zap, ChevronRight } from 'lucide-react';
+import { Navigation, Zap, Fuel, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function LowestGasPriceRanking({ data }) {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
   if (!data || data.length === 0) return null;
-  const top5 = data.slice(0, 5);
+  
+  const filteredData = data
+    .filter(item => {
+      const name = item.dbName || item.name || "";
+      return name.includes("주유소") || name.includes("충전소");
+    })
+    .reduce((acc, current) => {
+      const x = acc.find(item => item.stdRestCd === current.stdRestCd);
+      if (!x) return acc.concat([current]);
+      else return acc;
+    }, []);
+
+  const top5 = filteredData.slice(0, 5);
 
   const handleDetailMove = (id) => {
     if (!id) return;
@@ -14,66 +26,76 @@ export default function LowestGasPriceRanking({ data }) {
   };
 
   return (
-    <section className="bg-slate-50/50 py-16 px-5 overflow-hidden">
-      <div className="flex justify-between items-end mb-10 max-w-4xl mx-auto">
-        <div className="text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 rounded-xl mb-3 shadow-lg shadow-blue-600/20">
-            <Zap className="text-white fill-white" size={12} />
-            <span className="text-[11px] font-black text-white uppercase tracking-widest">Lowest Price1</span>
-          </div>
-          <h2 className="text-[28px] font-black text-slate-950 tracking-tighter leading-none">
-            오늘의 <span className="text-blue-600 underline underline-offset-8 decoration-blue-100">최저가</span> 주유소
-          </h2>
+    <section className="bg-[#F8FAFC] py-20 px-6">
+      {/* 헤더 영역 */}
+      <div className="max-w-2xl mx-auto mb-12">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-blue-100">
+            Best Value
+          </span>
         </div>
+        <h2 className="text-[32px] font-black text-slate-900 tracking-tighter leading-tight">
+          오늘의 <span className="text-blue-600">최저가</span> 주유소
+          <br />
+        </h2>
       </div>
 
-      <div className="space-y-5 max-w-4xl mx-auto">
+      {/* 리스트 영역 */}
+      <div className="max-w-2xl mx-auto space-y-4">
         {top5.map((gas, index) => (
           <div
             key={gas.id || gas.stdRestCd || index}
             onClick={() => handleDetailMove(gas.stdRestCd || gas.id)}
-            className="group relative overflow-hidden bg-white border border-slate-100 rounded-[2.5rem] p-7 transition-all hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] hover:border-blue-100 cursor-pointer active:scale-[0.99]"
+            className="group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 transition-all hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] hover:border-blue-200 cursor-pointer active:scale-[0.98]"
           >
-            <span className="absolute -right-3 -bottom-5 text-[100px] font-black text-slate-50 group-hover:text-blue-50/50 transition-colors select-none leading-none z-0 italic">
+            {/* 배경 순위 숫자 (은은한 데코) */}
+            <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[80px] font-black text-slate-50 group-hover:text-blue-50/50 transition-colors pointer-events-none italic z-0">
               {index + 1}
             </span>
 
-            <div className="relative z-10 flex flex-wrap items-center gap-x-8 gap-y-6">
-              <div className="flex items-center gap-4 flex-grow min-w-[220px]">
-                <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center font-black text-[22px] shadow-sm shrink-0 transition-transform group-hover:rotate-6 ${
-                  index === 0 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
-                }`}>
-                  {index + 1}
-                </div>
-                <div className="flex flex-col gap-1.5 min-w-0">
-                  <span className="font-black text-[20px] text-slate-900 tracking-tight truncate">
-                    {gas.dbName || gas.name}
-                  </span>
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-100 rounded-xl self-start">
-                    <Navigation size={12} className="text-slate-400" />
-                    <span className="text-[12px] font-bold text-slate-500 truncate max-w-[140px]">{gas.routeName}</span>
+            <div className="relative z-10 flex flex-col gap-6">
+              {/* 상단: 휴게소 정보 */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-[18px] shadow-sm ${
+                    index === 0 ? 'bg-blue-600 text-white' : 'bg-slate-900 text-white'
+                  }`}>
+                    {index + 1}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-black text-[19px] text-slate-900 tracking-tight">
+                      {gas.dbName || gas.name}
+                    </span>
+                    <div className="flex items-center gap-1 text-slate-400">
+                      <Navigation size={10} strokeWidth={3} />
+                      <span className="text-[12px] font-bold uppercase tracking-tight">{gas.routeName}</span>
+                    </div>
                   </div>
                 </div>
+                <ChevronRight size={20} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
               </div>
-              
-              <div className="flex items-center gap-3 shrink-0 ml-auto w-full md:w-auto">
-                <div className="flex-1 md:w-[160px] flex flex-col items-center bg-blue-600 px-6 py-4 rounded-[1.5rem] shadow-xl shadow-blue-900/20 border border-blue-600 group-hover:scale-105 transition-transform duration-300">
-                  <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.15em] mb-1.5">Gasoline</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[26px] font-black text-white leading-none tracking-tighter">
+
+              {/* 하단: 가격 정보 (여기가 핵심!) */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* 휘발유 카드 */}
+                <div className="bg-slate-50/80 rounded-3xl p-4 flex flex-col items-center border border-slate-100 group-hover:bg-white group-hover:border-blue-100 transition-all">
+                  <span className="text-[15px] font-black text-slate-400 mb-1 uppercase tracking-widest">휘발유</span>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-[24px] font-black text-slate-900 tracking-tighter">
                       {gas.gasolinePrice?.toLocaleString()}
                     </span>
-                    <span className="text-[14px] font-black text-amber-300">원</span>
+                    <span className="text-[13px] font-bold text-slate-400">원</span>
                   </div>
                 </div>
 
-                <div className="flex-1 md:w-[140px] flex flex-col items-center bg-slate-50 px-5 py-4 rounded-[1.5rem] border border-slate-100">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1.5">Diesel</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[20px] font-black text-slate-700 leading-none tracking-tighter">
+                {/* 경유 카드 */}
+                <div className="bg-slate-50/80 rounded-3xl p-4 flex flex-col items-center border border-slate-100 group-hover:bg-white group-hover:border-blue-100 transition-all">
+                  <span className="text-[15px] font-black text-slate-400 mb-1 uppercase tracking-widest">경유</span>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-[24px] font-black text-slate-900 tracking-tighter">
                       {gas.dieselPrice?.toLocaleString()}
                     </span>
-                    <span className="text-[12px] font-bold text-slate-400">원</span>
+                    <span className="text-[13px] font-bold text-slate-400">원</span>
                   </div>
                 </div>
               </div>
@@ -82,12 +104,11 @@ export default function LowestGasPriceRanking({ data }) {
         ))}
       </div>
 
-      <div className="text-center mt-12 max-w-lg mx-auto p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
-        <p className="text-[14px] text-slate-800 font-bold tracking-tight mb-1">
-          💡 실시간 데이터 기반 <span className="text-blue-600">최저가 랭킹</span>입니다.
-        </p>
-        <p className="text-[11px] text-slate-400 font-semibold">
-          가격은 현장 상황에 따라 소폭 변동될 수 있습니다.
+      {/* 푸터 안내 */}
+      <div className="mt-10 text-center">
+        <p className="text-[13px] text-slate-400 font-medium flex items-center justify-center gap-1.5">
+          <Zap size={14} className="text-blue-500 fill-blue-500" />
+          실시간 가격 정보를 기반으로 산출되었습니다.
         </p>
       </div>
     </section>

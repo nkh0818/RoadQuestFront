@@ -26,6 +26,7 @@ import InquiryModal from './components/common/InquiryModal';
 import { useInquiryStore } from './store/useInquiryStore';
 import { useUserStore } from './store/useUserStore';
 import { Toaster } from 'react-hot-toast';
+import BlockedUser from './pages/BlockedUser';
 import ScrollToTop from './components/common/ScrollTop';
 import AiGuideResultView from './pages/AiGuideResult';
 
@@ -87,7 +88,9 @@ function App() {
 
             <Route path="/history" element={<HistoryView/>} />
 
+            {/* MyPage */}
             <Route path="/my" element={<MyPageView />} />
+            <Route path="/blocked-users" element={<BlockedUser />} />
 
             {/* 잘못된 주소로 들어왔을 때 처리 */}
             <Route path="*" element={<div className="p-10 text-center font-bold">404 - 페이지를 찾을 수 없습니다.</div>} />

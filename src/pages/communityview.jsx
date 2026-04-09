@@ -20,19 +20,16 @@ export default function CommunityView() {
   const [activeTag, setActiveTag] = useState("전체");
   const keywords = ["전체", "#돈가스", "#경치맛집", "#화장실깨끗", "#실시간정체"];
 
-  // 🚩 스토어에서 필요한 함수들 가져오기 (fetchNextPage, hasMore 추가)
   const { reviews, fetchReviews, fetchNextPage, hasMore, isLoading } = useReviewStore();
   const user = useUserStore((state) => state.user);
   const currentUserNickname = user?.nickname;
 
-  // 🚩 관찰 대상(리스트 끝)을 가리킬 Ref
   const observerTarget = useRef(null);
 
   useEffect(() => {
-    fetchReviews(0); // 첫 로딩은 0페이지부터
+    fetchReviews(0);
   }, []);
 
-  // 🚩 스크롤 감지 로직 (Intersection Observer)
   const onIntersect = useCallback(
     ([entry]) => {
       // 1. 화면에 나타났고 2. 더 가져올 데이터가 있고 3. 지금 로딩 중이 아닐 때
@@ -46,7 +43,6 @@ export default function CommunityView() {
   useEffect(() => {
     if (!observerTarget.current) return;
 
-    // 감지기 설정 (타겟이 100% 보일 때 실행)
     const observer = new IntersectionObserver(onIntersect, { threshold: 1.0 });
     observer.observe(observerTarget.current);
 
@@ -91,7 +87,6 @@ export default function CommunityView() {
               />
             ))}
             
-            {/* 🚩 무한 스크롤 감지용 타겟 div */}
             <div ref={observerTarget} className="py-10 flex justify-center items-center">
               {isLoading && hasMore && (
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
@@ -129,12 +124,16 @@ function ReviewCard({ post, currentUserNickname }) {
 
   const openInquiry = useInquiryStore((state) => state.openInquiry);
   const deleteReview = useReviewStore((state) => state.deleteReview);
+  const blockUser = useReviewStore((state) => state.blockUser);
 
   const [showMenu, setShowMenu] = useState(false);
-  const isMine = post.nickname && currentUserNickname && post.nickname === currentUserNickname;
+  const isMine =
+    post.nickname &&
+    currentUserNickname &&
+    post.nickname === currentUserNickname;
 
   // 삭제 처리
-  const handleDelete = async () => {    
+  const handleDelete = async () => {
     try {
       await deleteReview(post.reviewId);
       toast.success("리뷰가 삭제되었습니다.");
@@ -146,11 +145,29 @@ function ReviewCard({ post, currentUserNickname }) {
     }
   };
 
+  // 차단 처리
+  const handleBlock = async () => {
+    try {
+      // 서버에 차단 요청 (store의 blockUser 호출)
+      await blockUser(post.userId);
+      useReviewStore.setState((state) => ({
+        reviews: state.reviews.filter((r) => r.userId !== post.userId),
+      }));
+
+      toast.success(`${post.nickname}님을 차단했습니다.`);
+    } catch (error) {
+      console.error("차단 실패:", error);
+      toast.error("차단 처리 중 오류가 발생했습니다.");
+    } finally {
+      setShowMenu(false);
+    }
+  };
+
   // 수정 처리
   const handleEdit = () => {
     setShowMenu(false);
     navigate(`/review/edit/${post.reviewId}`, {
-      state: { review: post } // 🚩 post 데이터를 review라는 이름으로 전달
+      state: { review: post },
     });
   };
 
@@ -163,7 +180,6 @@ function ReviewCard({ post, currentUserNickname }) {
 
   return (
     <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100/60 relative animate-in fade-in duration-500 pb-6">
-      {/* [상단] 헤더: 유저 정보 및 메뉴 버튼 */}
       <div className="p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 bg-slate-100 rounded-full border-2 border-white shadow-sm overflow-hidden">
@@ -214,20 +230,24 @@ function ReviewCard({ post, currentUserNickname }) {
                   // 내 글일 때 메뉴
                   <>
                     <button
-                    onClick={handleEdit}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                      onClick={handleEdit}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors"
+                    >
                       <Edit2 size={14} className="text-blue-500" /> 수정하기
                     </button>
-                    <button 
-                    onClick={handleDelete}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-rose-500 hover:bg-rose-50 rounded-xl transition-colors">
+                    <button
+                      onClick={handleDelete}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                    >
                       <Trash2 size={14} /> 삭제하기
                     </button>
                   </>
                 ) : (
                   // 남의 글일 때 메뉴
                   <>
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                    <button 
+                    onClick={handleBlock}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
                       <UserMinus size={14} /> 차단하기
                     </button>
                     <button

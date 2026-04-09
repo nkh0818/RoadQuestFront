@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import api from "../api/axios";
 
 const useSearchStore = create((set, get) => ({
   // 상태 정의
@@ -12,11 +12,11 @@ const useSearchStore = create((set, get) => ({
 
   fetchInitialData: async (pageNum = 0) => {
     if (get().isLoading) return;
-    
+
     set({ isLoading: true });
 
     try {
-      const res = await axios.get(`/api/restareas/random?size=10`); 
+      const res = await api.get(`/restareas/random?page=${pageNum}&size=10`);
       const fetchedData = Array.isArray(res.data) ? res.data : (res.data.content || []);
 
       set({
@@ -44,19 +44,19 @@ const useSearchStore = create((set, get) => ({
 
     set({ isLoading: true });
     try {
-      axios.post(`/api/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`).catch(() => {});
+      api.post(`/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`).catch(() => {});
 
-      const res = await axios.get(
-        `/api/restareas/search-name?keyword=${encodeURIComponent(trimmedTerm)}&page=0&size=10`
+      const res = await api.get(
+        `/restareas/search-name?keyword=${encodeURIComponent(trimmedTerm)}&page=0&size=10`
       );
-      
+
       const data = res.data.content || [];
       const isLast = res.data.last !== undefined ? res.data.last : data.length < 10;
 
-      set({ 
+      set({
         searchResults: data,
         hasMore: !isLast,
-        page: 0 
+        page: 0,
       });
     } catch (error) {
       console.error("검색/기록 에러:", error);
@@ -68,22 +68,28 @@ const useSearchStore = create((set, get) => ({
 
   setSortBy: (sort) => set({ sortBy: sort }),
 
-  resetSearch: () => set({ 
-    searchTerm: "", 
-    sortBy: "distance", 
-    searchResults: [], 
-    page: 0, 
-    hasMore: true 
+  resetSearch: () => set({
+    searchTerm: "",
+    sortBy: "distance",
+    searchResults: [],
+    page: 0,
+    hasMore: true,
   }),
 
   // 필터 및 정렬 데이터 반환
- getFilteredItems: () => {
+  getFilteredItems: () => {
     const { searchResults, sortBy } = get();
     if (!Array.isArray(searchResults) || searchResults.length === 0) return [];
 
     return [...searchResults].sort((a, b) => {
       if (sortBy === "price") {
         return (a.gasolinePrice || Infinity) - (b.gasolinePrice || Infinity);
+      } else if (sortBy === "distance") {
+        // distance 필드가 있으면 거리순, 없으면 원래 순서 유지
+        if (a.distance != null && b.distance != null) {
+          return a.distance - b.distance;
+        }
+        return 0;
       } else {
         return (a.dbName || "").localeCompare(b.dbName || "");
       }
@@ -92,4 +98,3 @@ const useSearchStore = create((set, get) => ({
 }));
 
 export default useSearchStore;
-

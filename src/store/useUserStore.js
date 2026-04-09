@@ -40,16 +40,15 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  /** 부분 업데이트 */
+  // 부분 업데이트
   updateNicknameInStore: (authData) => {
-    const { nickname, accessToken, profileImage } = authData; //  profileImage 추출 추가
-
+    const { nickname, accessToken, profileImage } = authData;
     set((state) => ({
       user: state.user
         ? { 
             ...state.user, 
             nickname: nickname, 
-            profileImage: profileImage, // 스토어 유저 상태에 이미지 주소 반영
+            profileImage: profileImage,
           }
         : null,
       accessToken: accessToken || state.accessToken,
@@ -62,13 +61,9 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  /** 내 정보 새로고침 호출 */
+  // 내 정보 새로고침 호출
   fetchUser: async (force = false) => {
-    const { isLoading, user } = get();
-
-    if (!force) {
-      if (isLoading || user) return;
-    }
+    if (!force && get().user) return;
 
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -83,31 +78,32 @@ export const useUserStore = create((set, get) => ({
           rewardPoint: data.rewardPoint,
           xp: data.xp,
           level: data.level,
-          profileImage: data.profileImage, // 확실히 매핑
+          profileImage: data.profileImage,
         },
         accessToken: token,
         isLoading: false,
       });
+      console.log("유저 정보 동기화 완료:", data.currentTitle);
     } catch (error) {
       console.error("fetchUser 에러 발생:", error);
       set({ isLoading: false });
     }
   },
 
-  /** 로그아웃 */
+  // 로그아웃
   logout: () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("nickname");
     set({ user: null, accessToken: null });
   },
 
-  /** 현재 XP 숫자 반환 */
+  // 현재 XP 숫자 반환
   getCurrentXp: () => {
     const { user } = get();
     return Number(user?.xp) || 0;
   },
 
-  /** 게이지 바 퍼센트 (0~100) */
+  //게이지 퍼센트 바
   getXpPercentage: () => {
     const { user } = get();
     if (!user) return 0;
@@ -115,7 +111,7 @@ export const useUserStore = create((set, get) => ({
     return Math.min(currentXp, 100);
   },
 
-  /** 좋아요 토글 */
+  //좋아요 토글
   toggleReviewLike: (reviewId) => {
     const { user } = get();
     if (!user) return;

@@ -12,11 +12,14 @@ import StatsDashboard from "../components/my/StatsDashboard";
 import MenuList from "../components/my/MenuList";
 
 import { useUserStore } from "../store/useUserStore";
+import useReviewStore from "../store/useReviewStore";
 
 export default function MyPageView() {
   const [profilePreviews, setProfilePreviews] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [tempNickname, setTempNickname] = useState("");
+
+  const { reviews } = useReviewStore();
 
   const navigate = useNavigate();
   const { user, fetchUser, isLoading, logout, changeNickname, getXpPercentage } =
@@ -149,12 +152,12 @@ console.log("현재 로그인한 유저 데이터:", user);
           rewardPoint={user.rewardPoint ?? 0}
           xp={user.xp ?? 0}
           xpPercent={getXpPercentage()}
-          reviewCount={user.reviewCount ?? 0}
+          reviewCount={reviews.length}
         />
       </section>
 
       <MenuList
-        reviewCount={user.reviewCount}
+        reviewCount={reviews.length}
         isEditing={isEditing}
         onLogout={handleLogout}
       />

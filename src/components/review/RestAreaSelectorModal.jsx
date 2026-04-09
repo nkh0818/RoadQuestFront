@@ -2,9 +2,6 @@ import { useEffect, useRef } from "react";
 import { X, Search, MapPin, Loader2 } from "lucide-react";
 import useSearchStore from "../../store/useSearchStore";
 
-// ⚠️ 백엔드 TODO: /api/restareas/search-name 응답에 latitude, longitude 필드 추가 필요
-// 현재는 좌표가 없으므로 null로 전달 → ReviewForm에서 GPS 인증 불가 처리
-
 export default function RestAreaSelectorModal({ onSelect, onClose }) {
   
   const inputRef = useRef(null);
