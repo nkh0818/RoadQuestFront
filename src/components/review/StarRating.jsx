@@ -30,7 +30,7 @@ export default function StarRating({ rating, setRating }) {
             <Star
               size={42}
               fill={num <= rating ? "#FFD93D" : "none"}
-              stroke={num <= rating ? "#FFD93D" : "#CBD5E1"}
+              stroke={num <= rating ? "#FFD93D" : "#000000"}
               strokeWidth={num <= rating ? 0 : 2}
               className={`relative z-10 transition-colors duration-300 ${
                 num <= rating ? "drop-shadow-[0_4px_4px_rgba(255,217,61,0.5)]" : ""

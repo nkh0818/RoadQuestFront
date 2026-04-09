@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { fetchMe, updateNickname } from "../api/auth";
 
 export const useUserStore = create((set, get) => ({
-  //상태 초기화
+  // 상태 초기화
   user: null,
   accessToken: localStorage.getItem("accessToken") || null,
   isLoading: false,
@@ -21,29 +21,48 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  /** 닉네임 변경 API 호출 */
-  changeNickname: async (newNickname) => {
-    const updatedUserData = await updateNickname(newNickname);
-    get().updateNicknameInStore(updatedUserData);
+  /** * 닉네임 및 프로필 이미지 변경 API 호출 
+   * @param {string} newNickname - 변경할 닉네임
+   * @param {string} profileImage - S3 업로드 후 받은 이미지 URL
+   */
+  changeNickname: async (newNickname, profileImage) => {
+    try {
+      //  API 호출 시 이미지 URL도 함께 전달하도록 수정
+      const updatedUserData = await updateNickname(newNickname, profileImage); 
+      
+      // 서버에서 받아온 최신 데이터(새 닉네임, 새 이미지 등)로 스토어 동기화
+      get().updateNicknameInStore(updatedUserData);
+      
+      return updatedUserData;
+    } catch (error) {
+      console.error("닉네임/프로필 변경 실패:", error);
+      throw error;
+    }
   },
 
   /** 부분 업데이트 */
   updateNicknameInStore: (authData) => {
-    const { nickname, accessToken } = authData;
+    const { nickname, accessToken, profileImage } = authData; //  profileImage 추출 추가
 
     set((state) => ({
       user: state.user
-        ? { ...state.user, nickname: nickname, accessToken: accessToken }
+        ? { 
+            ...state.user, 
+            nickname: nickname, 
+            profileImage: profileImage, // 스토어 유저 상태에 이미지 주소 반영
+          }
         : null,
+      accessToken: accessToken || state.accessToken,
     }));
 
+    // 로컬 스토리지 동기화
     localStorage.setItem("nickname", nickname);
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
     }
   },
 
-  /** 새로고침 호출 */
+  /** 내 정보 새로고침 호출 */
   fetchUser: async (force = false) => {
     if (!force && get().user) return;
 
@@ -60,6 +79,7 @@ export const useUserStore = create((set, get) => ({
           rewardPoint: data.rewardPoint,
           xp: data.xp,
           level: data.level,
+          profileImage: data.profileImage, // 확실히 매핑
         },
         accessToken: token,
         isLoading: false,
@@ -71,26 +91,20 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  /**
-   * 로그아웃
-   */
+  /** 로그아웃 */
   logout: () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("nickname");
-    set({ user: null, accessToken: null, isAuthenticated: false });
+    set({ user: null, accessToken: null });
   },
 
-  /**
-   * 현재 XP 숫자 그대로 반환
-   */
+  /** 현재 XP 숫자 반환 */
   getCurrentXp: () => {
     const { user } = get();
     return Number(user?.xp) || 0;
   },
 
-  /**
-   * 게이지 바 전용 퍼센트 (0~100)
-   */
+  /** 게이지 바 퍼센트 (0~100) */
   getXpPercentage: () => {
     const { user } = get();
     if (!user) return 0;
@@ -98,7 +112,7 @@ export const useUserStore = create((set, get) => ({
     return Math.min(currentXp, 100);
   },
 
-  /** 좋아요 토글 : ID리스트 */
+  /** 좋아요 토글 */
   toggleReviewLike: (reviewId) => {
     const { user } = get();
     if (!user) return;

@@ -1,9 +1,9 @@
-import axios from 'axios';
+import api from './axios';
 
 //랭킹
 export const fetchHotKeywords = async () => {
   try {
-    const response = await axios.get('/api/ranking/search/daily');
+    const response = await api.get('/ranking/search/daily');
     
     if (Array.isArray(response.data)) {
       return response.data;
@@ -19,7 +19,7 @@ export const fetchHotKeywords = async () => {
 
 // 랜덤 휴게소 목록 (초기 로드용)
 export const fetchRandomRestAreas = async (page = 0, size = 10) => {
-  const response = await axios.get('/api/restareas/random', {
+  const response = await api.get('/restareas/random', {
     params: { page, size }
   });
   return response.data;

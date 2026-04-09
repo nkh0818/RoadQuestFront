@@ -3,6 +3,7 @@ import { Heart, Navigation } from "lucide-react";
 import { useSavedStore } from "../../store/useSavedStore";
 import SubHeader from "../common/SubHeader";
 import KakaoMap from "../search/KakaoMap";
+import toast from "react-hot-toast";
 
 export default function DetailHero({ data }) {
   const { toggleSave, isSaved } = useSavedStore();
@@ -15,8 +16,20 @@ export default function DetailHero({ data }) {
     { lat: data.latitude, lng: data.longitude, name: data.name },
   ];
 
-  console.log(center);
-  console.log("데이터 이름 타입 확인:", typeof data.name, data.name);
+  const handleNavigation = () => {
+    // 데이터 확인 (디버깅용)
+    if (!data.latitude || !data.longitude) {
+      toast.error("위치 정보가 없는 휴게소입니다.");
+      return;
+    }
+
+    const destinationName = encodeURIComponent(data.name);
+    const lat = data.latitude;
+    const lng = data.longitude;
+
+    const kakaoNavUrl = `https://map.kakao.com/link/to/${destinationName},${lat},${lng}`;
+    window.open(kakaoNavUrl, "_blank");
+  };
 
   return (
     <section className="relative h-[100vh] w-full shrink-0 overflow-hidden font-sans group bg-slate-900">
@@ -53,15 +66,12 @@ export default function DetailHero({ data }) {
         />
       </div>
 
-      {/* 배경 영역: 맵 또는 대표 이미지 */}
       <div className="absolute inset-0 z-0 h-full w-full">
-        {/* 좌표가 확실히 있을 때만 컴포넌트 렌더링 */}
         {center.lat && center.lng && (
           <div className="w-full h-full grayscale-[30%] opacity-80">
             <KakaoMap center={center} locations={locations} />
           </div>
         )}
-        {/* 오버레이들 */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-800 via-slate-100/0 to-transparent z-10" />
       </div>
 
@@ -83,9 +93,12 @@ export default function DetailHero({ data }) {
 
         {/* 메인 액션 버튼 */}
         <div className="w-full max-w-sm space-y-3">
-          <button className="flex items-center justify-center gap-3 w-full py-5 bg-[#3182CE] text-white rounded-[2rem] font-black text-[18px] shadow-2xl shadow-blue-900/40 active:scale-95 transition-all hover:bg-blue-500">
+          <button
+            onClick={handleNavigation}
+            className="flex items-center justify-center gap-3 w-full py-5 bg-blue-600 text-white rounded-[2rem] font-black text-[18px] shadow-2xl shadow-blue-900/40 active:scale-95 transition-all hover:bg-blue-500"
+          >
             <Navigation size={20} fill="currentColor" />
-            카카오맵 길찾기
+            {data.name} 길찾기 시작
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef, useCallback } from "react"; // 🚩 useRef, useCallback 추가
 import {
   MapPin,
   SearchX,
@@ -11,47 +11,58 @@ import {
 import SubHeader from "../components/common/SubHeader";
 import Flotingwrite from "../components/common/Flotingwrite";
 import { useInquiryStore } from "../store/useInquiryStore";
-import useReviewStore from "../store/useReviewStore";
-import { useUserStore } from "../store/useUserStore"; // 내 ID 확인용
+import useReviewStore from '../store/useReviewStore';
+import { useUserStore } from "../store/useUserStore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function CommunityView() {
   const [activeTag, setActiveTag] = useState("전체");
-  const keywords = [
-    "전체",
-    "#돈가스",
-    "#경치맛집",
-    "#화장실깨끗",
-    "#실시간정체",
-  ];
+  const keywords = ["전체", "#돈가스", "#경치맛집", "#화장실깨끗", "#실시간정체"];
 
-  const { reviews, fetchReviews, isLoading } = useReviewStore();
+  // 🚩 스토어에서 필요한 함수들 가져오기 (fetchNextPage, hasMore 추가)
+  const { reviews, fetchReviews, fetchNextPage, hasMore, isLoading } = useReviewStore();
   const user = useUserStore((state) => state.user);
   const currentUserNickname = user?.nickname;
 
+  // 🚩 관찰 대상(리스트 끝)을 가리킬 Ref
+  const observerTarget = useRef(null);
+
   useEffect(() => {
-    fetchReviews();
+    fetchReviews(0); // 첫 로딩은 0페이지부터
   }, []);
+
+  // 🚩 스크롤 감지 로직 (Intersection Observer)
+  const onIntersect = useCallback(
+    ([entry]) => {
+      // 1. 화면에 나타났고 2. 더 가져올 데이터가 있고 3. 지금 로딩 중이 아닐 때
+      if (entry.isIntersecting && hasMore && !isLoading) {
+        fetchNextPage();
+      }
+    },
+    [hasMore, isLoading, fetchNextPage]
+  );
+
+  useEffect(() => {
+    if (!observerTarget.current) return;
+
+    // 감지기 설정 (타겟이 100% 보일 때 실행)
+    const observer = new IntersectionObserver(onIntersect, { threshold: 1.0 });
+    observer.observe(observerTarget.current);
+
+    return () => observer.disconnect();
+  }, [onIntersect]);
 
   const filteredReviews = useMemo(() => {
     if (activeTag === "전체") return reviews;
-    return reviews.filter((review) => review.tags?.includes(activeTag));
+    return reviews.filter((review) => review.tags?.includes(activeTag.replace('#', '')));
   }, [activeTag, reviews]);
-
-  if (isLoading && reviews.length === 0) {
-    return (
-      <div className="flex justify-center py-20 font-black">
-        리뷰 로딩 중...
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-28 max-w-[600px] mx-auto relative">
       <SubHeader title="커뮤니티" />
 
-      {/* 태그 필터링 섹션 */}
+      {/* 태그 필터링 섹션 (기존과 동일) */}
       <section className="bg-white py-4 border-b border-slate-100 flex gap-2.5 px-5 overflow-x-auto scrollbar-hide sticky top-[60px] z-10">
         {keywords.map((tag) => (
           <button
@@ -71,22 +82,42 @@ export default function CommunityView() {
       {/* 피드 리스트 */}
       <main className="p-4 space-y-5">
         {filteredReviews.length > 0 ? (
-          filteredReviews.map((post) => (
-            <ReviewCard
-              key={post.reviewId}
-              post={post}
-              currentUserNickname={currentUserNickname}
-            />
-          ))
+          <>
+            {filteredReviews.map((post) => (
+              <ReviewCard
+                key={post.reviewId}
+                post={post}
+                currentUserNickname={currentUserNickname}
+              />
+            ))}
+            
+            {/* 🚩 무한 스크롤 감지용 타겟 div */}
+            <div ref={observerTarget} className="py-10 flex justify-center items-center">
+              {isLoading && hasMore && (
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+              )}
+              {!hasMore && reviews.length > 0 && (
+                <p className="text-slate-400 text-sm font-bold">마지막 리뷰입니다 🥔</p>
+              )}
+            </div>
+          </>
         ) : (
-          <div className="py-32 flex flex-col items-center justify-center text-slate-300">
-            <SearchX size={60} className="mb-4 opacity-20" />
-            <p className="font-black text-[15px]">
-              해당 태그의 리뷰가 아직 없어요
-            </p>
+          !isLoading && (
+            <div className="py-32 flex flex-col items-center justify-center text-slate-300">
+              <SearchX size={60} className="mb-4 opacity-20" />
+              <p className="font-black text-[15px]">해당 태그의 리뷰가 아직 없어요</p>
+            </div>
+          )
+        )}
+
+        {/* 첫 로딩 중일 때 보여줄 UI */}
+        {isLoading && reviews.length === 0 && (
+          <div className="flex justify-center py-20 font-black text-slate-400">
+            리뷰 로딩 중...
           </div>
         )}
       </main>
+
       <Flotingwrite />
     </div>
   );

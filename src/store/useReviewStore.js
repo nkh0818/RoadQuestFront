@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import api from "../api/axios";
 import { deleteReviewApi } from "../api/review";
 
 const useReviewStore = create((set, get) => ({
@@ -8,6 +8,13 @@ const useReviewStore = create((set, get) => ({
   page: 0, // 페이징용
   hasMore: true, // 다음 페이지 유무
 
+  fetchNextPage: () => {
+    const { page, hasMore, isLoading, fetchReviews } = get();
+    if (!isLoading && hasMore) {
+      fetchReviews(page + 1);
+    }
+  },
+
   // 리뷰 데이터 가져오기 (커뮤니티/전체)
   fetchReviews: async (pageNum = 0) => {
     if (get().isLoading) return;
@@ -15,19 +22,8 @@ const useReviewStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       // 백엔드 페이징 API 호출
-      const token = localStorage.getItem("accessToken");
-
-      const res = await axios.get(
-        `/api/reviews/community?page=${pageNum}&size=10`,
-        {
-          headers: token
-            ? {
-                Authorization: token.startsWith("Bearer ")
-                  ? token
-                  : `Bearer ${token}`,
-              }
-            : {},
-        },
+      const res = await api.get(
+        `/reviews/community?page=${pageNum}&size=10`,
       );
 
       const { content, last } = res.data;
@@ -82,25 +78,10 @@ const useReviewStore = create((set, get) => ({
   //유저 차단
   blockUser: async (blockedUserId) => {
     try {
-      const token = localStorage.getItem("accessToken");
-      console.log("전송 시도 토큰:", token);
-
-      if (!token || token === "null" || token === "undefined") {
-        alert("로그인 정보가 만료되었습니다. 다시 로그인해주세요.");
-        return;
-      }
-
-      const response = await axios.post(
-        "/api/blocks",
-        { blockedUserId: blockedUserId },
-        {
-          headers: {
-            Authorization: token.startsWith("Bearer ")
-              ? token
-              : `Bearer ${token}`,
-          },
-        },
-      );
+      const response = await api.post("/blocks", { blockedUserId });
+      set((state) => ({
+        reviews: state.reviews.filter((r) => r.userId !== blockedUserId),
+      }));
       return response.data;
     } catch (error) {
       console.error("차단 실패 상세:", error.response?.data || error.message);
@@ -110,10 +91,7 @@ const useReviewStore = create((set, get) => ({
 
   unblockUser: async (blockedUserId) => {
     try {
-      const token = localStorage.getItem("accessToken");
-      await axios.delete(`/api/blocks/${blockedUserId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/blocks/${blockedUserId}`);
       // 성공 시 로컬 상태 업데이트 (목록에서 제거 등)
     } catch (error) {
       console.error("해제 실패:", error);

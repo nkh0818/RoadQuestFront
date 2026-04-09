@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useUserStore } from "../store/useUserStore";
-import axios from "axios";
+import { uploadImageToS3 } from "../api/review";
+import api from "../api/axios";
 import toast from "react-hot-toast";
 
 const TAG_MAP = [
@@ -12,11 +13,11 @@ const TAG_MAP = [
 
 export function useReviewForm({
   verifyStatus,
+  userLocation,
   onSuccess,
   initialData,
   restAreaId,
 }) {
-  const token = localStorage.getItem("accessToken");
   const fetchUser = useUserStore((state) => state.fetchUser);
   const addReviewToTop = useUserStore((state) => state.addReviewToTop);
 
@@ -32,10 +33,11 @@ export function useReviewForm({
       setContent(initialData.content || "");
       setRating(initialData.rating || 0);
       setTagList(initialData.tagList || initialData.tags || []);
+      // 기존 이미지가 있다면 프리뷰에 넣어줌
+      if (initialData.imageUrl) setPhotoPreviews([initialData.imageUrl]);
     }
   }, [initialData]);
 
-  // 다이나믹 태그
   const dynamicTags = useMemo(() => {
     if (!content.trim()) return [];
     const detected = TAG_MAP.filter((item) =>
@@ -44,7 +46,6 @@ export function useReviewForm({
     return [...new Set(detected)].filter((tag) => !tagList.includes(tag));
   }, [content, tagList]);
 
-  // 태그 관리 (추가/삭제)
   const addTag = (tag) => {
     if (!tagList.includes(tag)) setTagList((prev) => [...prev, tag]);
   };
@@ -53,13 +54,19 @@ export function useReviewForm({
     setTagList((prev) => prev.filter((v) => v !== tag));
   };
 
-  // 사진 처리 (드롭/삭제)
-  const handlePhotoDrop = (files) => {
-    setPhotoFiles((prev) => [...prev, ...files]);
-    setPhotoPreviews((prev) => [
-      ...prev,
-      ...files.map((f) => URL.createObjectURL(f)),
-    ]);
+  // 사진 처리 (S3 업로드)
+  const handlePhotoDrop = async (files) => {
+    const loadingToast = toast.loading("이미지를 업로드 중...");
+    try {
+      const uploadPromises = files.map(file => uploadImageToS3(file));
+      const s3Urls = await Promise.all(uploadPromises);
+      setPhotoPreviews((prev) => [...prev, ...s3Urls]);
+      setPhotoFiles((prev) => [...prev, ...files]);
+      toast.success("업로드 완료!", { id: loadingToast });
+    } catch (error) {
+      console.log("이미지 업로드 실패:", error);
+      toast.error("이미지 업로드에 실패했습니다.", { id: loadingToast });
+    }
   };
 
   const handlePhotoRemove = (idx) => {
@@ -67,12 +74,16 @@ export function useReviewForm({
     setPhotoFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  //리뷰 작성
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  // 리뷰 제출
+  const handleSubmit = async (e, currentRestAreaId) => {
+    if (e) e.preventDefault();
 
-    // 유효성 검사
+    const finalId = currentRestAreaId || restAreaId;
+
+    if (!finalId || finalId === "new" || finalId === "undefined") {
+      return toast.error("리뷰를 작성할 휴게소를 먼저 선택해 주세요.");
+    }
+
     if (rating === 0 || content.length < 5) {
       return toast.error("별점과 내용을 5글자 이상 입력해 주세요.");
     }
@@ -81,46 +92,30 @@ export function useReviewForm({
 
     try {
       const reviewData = {
-        restAreaId: restAreaId,
+        restAreaId: finalId,
         rating: rating,
         content: content,
         tags: tagList,
-        imageUrl: photoPreviews[0] || "", // 현재는 단일 이미지 처리
-        userLat: verifyStatus?.lat || 37.1234,
-        userLon: verifyStatus?.lon || 127.1234,
+        imageUrl: photoPreviews[0] || "", 
+        userLat: userLocation?.latitude || 0.0,
+        userLon: userLocation?.longitude || 0.0,
       };
-
-      console.log("보내준 Review 데이터 확인:", reviewData);
 
       let response;
 
       if (initialData?.reviewId) {
-        // 수정 모드: @PutMapping("/{reviewId}") 호출
-        response = await axios.put(
-          `/api/reviews/${initialData.reviewId}`,
-          reviewData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+        response = await api.put(`/reviews/${initialData.reviewId}`, reviewData);
       } else {
-        // 등록 모드: @PostMapping 호출
-        response = await axios.post("/api/reviews", reviewData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        response = await api.post("/reviews", reviewData);
       }
 
       if (!initialData && response.data && addReviewToTop) {
         addReviewToTop(response.data);
       }
+      
+      if (fetchUser) await fetchUser(true);
 
-      // 유저 정보(포인트 등) 갱신
-      if (fetchUser) {
-        console.log("리뷰 작성 성공! 최신 칭호를 가져옵니다...");
-        await fetchUser(true);
-      }
-
-      // 콜백 실행 (포인트 팝업 등을 위해 결과 전달)
+      // 성공 콜백
       onSuccess({
         points: verifyStatus === "verified" ? 200 : 100,
         xp: 30,
@@ -128,33 +123,23 @@ export function useReviewForm({
         newReview: response.data || null,
       });
 
-      toast.success(
-        initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!",
-      );
+      toast.success(initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!");
     } catch (error) {
-      toast.error(
-        initialData ? "리뷰 수정에 실패했습니다." : "리뷰 등록에 실패했습니다.",
-      );
-      console.error("Review 처리 실패:", error.response?.data || error.message);
+      const errorMsg = error.response?.data?.message || "처리 중 오류가 발생했습니다.";
+      toast.error(errorMsg);
+      console.error("Review 처리 실패:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return {
-    content,
-    setContent,
-    rating,
-    setRating,
-    tagList,
-    dynamicTags,
-    addTag,
-    removeTag,
-    photoFiles,
-    photoPreviews,
-    handlePhotoDrop,
-    handlePhotoRemove,
-    isSubmitting,
-    handleSubmit,
+    content, setContent,
+    rating, setRating,
+    tagList, dynamicTags,
+    addTag, removeTag,
+    photoFiles, photoPreviews,
+    handlePhotoDrop, handlePhotoRemove,
+    isSubmitting, handleSubmit,
   };
 }

@@ -5,7 +5,6 @@ export default function BestReviewRanking({ data }) {
   const [scrollIndex, setScrollIndex] = useState(0);
   const scrollRef = useRef(null);
   
-  // 🚩 마우스 드래그를 위한 상태값들
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState(0);
 
@@ -21,13 +20,13 @@ export default function BestReviewRanking({ data }) {
     }
   };
 
-  // 2. 🚩 마우스 드래그 시작
+  // 2. 
   const onDragStart = (e) => {
     setIsDrag(true);
     setStartX(e.pageX + scrollRef.current.scrollLeft);
   };
 
-  // 3. 🚩 마우스 드래그 중
+  // 3. 
   const onDragMove = (e) => {
     if (!isDrag) return;
     e.preventDefault(); // 드래그 시 텍스트 선택 방지
@@ -36,23 +35,28 @@ export default function BestReviewRanking({ data }) {
     }
   };
 
-  // 4. 🚩 드래그 종료
+  // 4. 
   const onDragEnd = () => {
     setIsDrag(false);
   };
 
   return (
-    <section className="py-16 bg-slate-50/50 overflow-hidden"> {/* 🚩 배경에 미세한 색감 추가 */}
+    <section className="py-16 bg-slate-50/50 overflow-hidden">
       <div className="px-8 mb-10 flex justify-between items-end max-w-6xl mx-auto">
         <div className="text-left">
-          <p className="text-blue-600 font-black text-[12px] tracking-[0.2em] mb-2 uppercase">Real-time Feedback</p>
+          <p className="text-blue-600 font-black text-[12px] tracking-[0.2em] mb-2 uppercase">
+            Real-time Feedback
+          </p>
           <h2 className="text-[28px] font-black text-slate-950 tracking-tighter leading-tight">
-            지금 <span className="text-blue-600 underline underline-offset-8 decoration-blue-100">가장 공감받는</span> 리뷰
+            지금{" "}
+            <span className="text-blue-600 underline underline-offset-8 decoration-blue-100">
+              실시간
+            </span>{" "}
+            리뷰
           </h2>
         </div>
       </div>
-
-      <div 
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
         onMouseDown={onDragStart}
@@ -62,21 +66,26 @@ export default function BestReviewRanking({ data }) {
         className={`flex gap-6 overflow-x-auto px-8 pb-12 snap-x snap-mandatory scrollbar-hide shrink-0 transition-all ${
           isDrag ? "cursor-grabbing" : "cursor-grab"
         }`}
-        style={{ 
-          scrollBehavior: isDrag ? 'auto' : 'smooth', 
-          userSelect: 'none'
+        style={{
+          scrollBehavior: isDrag ? "auto" : "smooth",
+          userSelect: "none",
         }}
       >
         {displayData.map((review, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="min-w-[300px] max-w-[300px] snap-center shrink-0"
           >
             <div className="h-full bg-white rounded-[3rem] p-8 border border-slate-100 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] flex flex-col justify-between hover:shadow-blue-500/10 hover:border-blue-100 transition-all duration-500 pointer-events-none">
               <div>
                 <div className="flex items-center gap-1.5 mb-6 px-3 py-1.5 bg-blue-50/50 rounded-xl w-fit border border-blue-100/30">
-                  <MessageSquare size={14} className="text-blue-600 fill-blue-600/20" />
-                  <span className="text-[11px] font-black tracking-widest text-blue-700 uppercase">Review</span>
+                  <MessageSquare
+                    size={14}
+                    className="text-blue-600 fill-blue-600/20"
+                  />
+                  <span className="text-[11px] font-black tracking-widest text-blue-700 uppercase">
+                    Review
+                  </span>
                 </div>
                 <p className="text-[18px] text-slate-700 leading-[1.8] line-clamp-5 break-keep tracking-tight">
                   "{review.content}"
@@ -84,12 +93,17 @@ export default function BestReviewRanking({ data }) {
               </div>
 
               <div className="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="text-[14px] font-black text-slate-950">@{review.nickname}</span>
+
+                <div className="flex flex-col max-w-[60%]">
+                  <span className="text-[14px] font-black text-slate-950 truncate">
+                    {review.restAreaName || "전국 휴게소"}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-2xl shadow-lg shadow-slate-950/20">
-                  <Heart size={14} className="text-blue-600 fill-blue-600" />
-                  <span className="text-[14px] font-black text-white">{review.likeCount}</span>
+
+                <div className="flex flex-col items-end">
+                  <span className="text-[13px] font-bold text-slate-600">
+                    @{review.nickname}
+                  </span>
                 </div>
               </div>
             </div>
@@ -97,14 +111,13 @@ export default function BestReviewRanking({ data }) {
         ))}
         <div className="min-w-[40px] shrink-0" />
       </div>
-
       <div className="flex justify-center gap-2 items-center">
         {displayData.map((_, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className={`h-1.5 rounded-full transition-all duration-500 ${
-                i === scrollIndex ? 'w-8 bg-blue-600' : 'w-2 bg-slate-200'
-            }`} 
+              i === scrollIndex ? "w-8 bg-blue-600" : "w-2 bg-slate-200"
+            }`}
           />
         ))}
       </div>
