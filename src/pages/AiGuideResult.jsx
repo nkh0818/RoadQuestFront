@@ -8,16 +8,17 @@ export default function AiGuideResultView() {
   const navigate = useNavigate();
   
   const { recommendations, selection } = location.state || { recommendations: [], selection: {} };
+  console.log("AI 추천 리스트 원본 데이터:", recommendations);
 
   const filteredList = recommendations?.filter(area => !area.dbName.includes('주유소')) || [];
 
   const getAiMessage = () => {
     const messages = {
-      food: "금강산도 식후경!\n맛 평가가 가장 좋은 곳 위주로 구성했어요. 🍖",
-      scenery: "운전 중 힐링 타임!\n뷰가 환상적인 휴게소를 선정했습니다. 🌲",
-      event: "지루할 틈 없는 여행!\n특별한 테마가 있는 곳들을 모았어요. ✨"
+      food: "금강산도 식후경!\n맛 평가가 가장 좋은 곳 위주로 찾아왔어요.",
+      scenery: "운전 중 힐링 타임!\n뷰가 환상적인 휴게소를 찾아왔어요.",
+      event: "지루할 틈 없는 여행!\n특별한 테마가 있는 곳들을 찾아왔어요."
     };
-    return messages[selection.priority] || "-- 취향을 완벽 분석한\n최적의 경로입니다! 🚀";
+    return messages[selection.priority] || "-- 취향을 완벽 분석한\n최적의 경로입니다!";
   };
 
   return (

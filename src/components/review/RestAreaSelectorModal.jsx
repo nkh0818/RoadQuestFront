@@ -1,12 +1,28 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Search, MapPin, Loader2 } from "lucide-react";
 import useSearchStore from "../../store/useSearchStore";
 
 export default function RestAreaSelectorModal({ onSelect, onClose }) {
-  
   const inputRef = useRef(null);
-  const { searchResults, isLoading, setSearchTerm, fetchInitialData, resetSearch } =
-    useSearchStore();
+  const {
+    searchResults,
+    isLoading,
+    setSearchTerm,
+    fetchInitialData,
+    resetSearch,
+  } = useSearchStore();
+
+  const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    if (!inputValue.trim()) return;
+
+    const timer = setTimeout(() => {
+      setSearchTerm(inputValue); 
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [inputValue, setSearchTerm]);
 
   useEffect(() => {
     fetchInitialData(0);
@@ -15,25 +31,28 @@ export default function RestAreaSelectorModal({ onSelect, onClose }) {
   }, []);
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+    setInputValue(e.target.value);
   };
 
-
   const handleSelect = (item) => {
-
-    console.log("📍 모달에서 클릭한 아이템 원본:", item);
+    console.log("모달에서 클릭한 아이템 원본:", item);
 
     onSelect({
-      id: item.stdRestCd || item.restAreaCode || item.unitCode || item.id, 
+      id: item.stdRestCd || item.restAreaCode || item.unitCode || item.id,
       name: item.dbName || item.name || item.restAreaName,
       latitude: item.y || item.latitude || null,
       longitude: item.x || item.longitude || null,
     });
   };
 
+  const filteredResults = searchResults.filter((item) => {
+    const name = item.dbName || item.name || "";
+    return !name.includes("주유소") && !name.includes("충전소");
+  });
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/40 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -53,16 +72,25 @@ export default function RestAreaSelectorModal({ onSelect, onClose }) {
 
         {/* 검색창 */}
         <div className="flex items-center gap-3 bg-slate-100 rounded-2xl px-4 py-3 mb-4">
-          <Search size={18} strokeWidth={2.5} className="text-slate-400 shrink-0" />
+          <Search
+            size={18}
+            strokeWidth={2.5}
+            className="text-slate-400 shrink-0"
+          />
           <input
             ref={inputRef}
             type="text"
             placeholder="휴게소 이름을 검색하세요"
+            value={inputValue}
             onChange={handleSearch}
             className="flex-1 bg-transparent text-[14px] font-bold text-slate-800 placeholder:text-slate-400 outline-none"
           />
           {isLoading && (
-            <Loader2 size={16} strokeWidth={2.5} className="text-blue-500 animate-spin shrink-0" />
+            <Loader2
+              size={16}
+              strokeWidth={2.5}
+              className="text-blue-500 animate-spin shrink-0"
+            />
           )}
         </div>
 
@@ -76,7 +104,7 @@ export default function RestAreaSelectorModal({ onSelect, onClose }) {
             </div>
           )}
 
-          {searchResults.map((item) => (
+          {filteredResults.map((item) => (
             <button
               key={item.stdRestCd || item.restAreaCode || item.id}
               type="button"
