@@ -3,11 +3,13 @@ import useDetailInfo from "../../hook/useDetailInfo";
 import InfoSection from "./InfoSection";
 import EventRow from "./EventRow";
 import DiningItem from "./DiningItem";
+import BestReviewRanking from "../ranking/BestReviewRanking";
 
 export default function DetailInfoSection({ data }) {
   console.log("DetailInfo에 전달된 data:", data);
 
   const { info, food, events } = data || {};
+  const realTimeReviews = info?.reviews || [];
 
   const { menuVisible, showMore, sortedEvents, fuelData } = useDetailInfo({
     info,
@@ -53,7 +55,7 @@ export default function DetailInfoSection({ data }) {
               <div className="mt-4 text-[12px] text-slate-400 font-medium">
                 이 데이터는 AI가 최근 리뷰들을 분석한 결과입니다. (
                 {info.aiScore === "POSITIVE"
-                  ? "만족도 높음"
+                  ? "만족도 높음!"
                   : info.aiScore === "NEGATIVE"
                     ? "주의 필요"
                     : "보통"}
@@ -68,6 +70,18 @@ export default function DetailInfoSection({ data }) {
           리뷰가 더 쌓이면 AI 분석이 시작됩니다!
         </p>
       )}
+
+
+      {/* 사용자가 적은 해당 휴게소 리뷰 */}
+      {realTimeReviews.length > 0 ? (
+        <div className="-mx-6"> 
+          <BestReviewRanking data={realTimeReviews} />
+        </div>
+      ) : (
+        /* 리뷰가 아예 없을 때의 깔끔한 공백 혹은 안내 (선택사항) */
+        <div className="py-4" />
+      )}
+
 
       {/* 이벤트 */}
       <InfoSection

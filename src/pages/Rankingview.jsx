@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import SubHeader from '../components/common/SubHeader';
 import SearchRanking from '../components/ranking/SearchRanking';
 import BestReviewRanking from '../components/ranking/BestReviewRanking';
 import UserExplorerRanking from '../components/ranking/UserExplorerRanking';
 import LowestGasPriceRanking from '../components/ranking/LowestGasPriceRanking';
 import HotPlaceRanking from '../components/ranking/PlaceRangking';
+import api from '../api/axios';
 
 export default function RankingView() {
   const [rankingData, setRankingData] = useState(null);
@@ -15,7 +15,7 @@ export default function RankingView() {
   useEffect(() => {
     const fetchRankings = async () => {
       try {
-        const res = await axios.get('/api/ranking/totalrank');
+        const res = await api.get('/ranking/totalrank');
         setRankingData(res.data);
       } catch (error) {
         console.error("랭킹 로드 실패:", error);

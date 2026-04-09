@@ -60,21 +60,6 @@ const useReviewStore = create((set, get) => ({
     }
   },
 
-  // 좋아요 토글 (실시간 반영)
-  toggleLike: (reviewId) => {
-    set((state) => ({
-      reviews: state.reviews.map((r) =>
-        r.reviewId === reviewId
-          ? {
-              ...r,
-              liked: !r.liked,
-              likeCount: r.liked ? r.likeCount - 1 : r.likeCount + 1,
-            }
-          : r,
-      ),
-    }));
-  },
-
   //유저 차단
   blockUser: async (blockedUserId) => {
     try {
@@ -96,35 +81,6 @@ const useReviewStore = create((set, get) => ({
     } catch (error) {
       console.error("해제 실패:", error);
     }
-  },
-
-  // 댓글 로직
-  addComment: (reviewId, text) => {
-    const newComment = {
-      id: Date.now(),
-      author: "나(USER)",
-      text,
-      date: new Date().toLocaleDateString().replace(/\.$/, ""),
-    };
-
-    set((state) => ({
-      reviews: state.reviews.map((r) =>
-        r.reviewId === reviewId
-          ? { ...r, comments: [...(r.comments || []), newComment] }
-          : r,
-      ),
-    }));
-  },
-
-  // 댓글 삭제
-  deleteComment: (reviewId, commentId) => {
-    set((state) => ({
-      reviews: state.reviews.map((r) =>
-        r.reviewId === reviewId
-          ? { ...r, comments: r.comments.filter((c) => c.id !== commentId) }
-          : r,
-      ),
-    }));
   },
 }));
 

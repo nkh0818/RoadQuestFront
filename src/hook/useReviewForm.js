@@ -17,6 +17,7 @@ export function useReviewForm({
   onSuccess,
   initialData,
   restAreaId,
+  isEdit
 }) {
   const fetchUser = useUserStore((state) => state.fetchUser);
   const addReviewToTop = useUserStore((state) => state.addReviewToTop);
@@ -28,15 +29,27 @@ export function useReviewForm({
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
   useEffect(() => {
-    if (initialData) {
+    if (isEdit && initialData) {
+      // 수정 모드: 전달받은 데이터로 세팅
       setContent(initialData.content || "");
       setRating(initialData.rating || 0);
       setTagList(initialData.tagList || initialData.tags || []);
-      // 기존 이미지가 있다면 프리뷰에 넣어줌
-      if (initialData.imageUrl) setPhotoPreviews([initialData.imageUrl]);
+      if (initialData.imageUrl) {
+        setPhotoPreviews([initialData.imageUrl]);
+      } else {
+        setPhotoPreviews([]);
+      }
+    } else if (!isEdit) {
+      // 신규 작성 모드: 모든 상태를 명시적으로 초기화
+      setContent("");
+      setRating(0);
+      setTagList([]);
+      setPhotoFiles([]);
+      setPhotoPreviews([]);
     }
-  }, [initialData]);
+  }, [initialData, isEdit]);
 
   const dynamicTags = useMemo(() => {
     if (!content.trim()) return [];
@@ -78,6 +91,7 @@ export function useReviewForm({
   const handleSubmit = async (e, currentRestAreaId) => {
     if (e) e.preventDefault();
 
+    // ID 결정 우선순위 명확화
     const finalId = currentRestAreaId || restAreaId;
 
     if (!finalId || finalId === "new" || finalId === "undefined") {
@@ -96,20 +110,20 @@ export function useReviewForm({
         rating: rating,
         content: content,
         tags: tagList,
-        imageUrl: photoPreviews[0] || "", 
+        imageUrl: photoPreviews.length > 0 ? photoPreviews[0] : "", 
         userLat: userLocation?.latitude || 0.0,
         userLon: userLocation?.longitude || 0.0,
       };
 
       let response;
 
-      if (initialData?.reviewId) {
+      if (isEdit && initialData?.reviewId) {
         response = await api.put(`/reviews/${initialData.reviewId}`, reviewData);
       } else {
         response = await api.post("/reviews", reviewData);
       }
 
-      if (!initialData && response.data && addReviewToTop) {
+      if (!isEdit && response.data && addReviewToTop) {
         addReviewToTop(response.data);
       }
       
@@ -123,7 +137,7 @@ export function useReviewForm({
         newReview: response.data || null,
       });
 
-      toast.success(initialData ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!");
+      toast.success(isEdit ? "리뷰를 수정했습니다!" : "리뷰를 등록했습니다!");
     } catch (error) {
       const errorMsg = error.response?.data?.message || "처리 중 오류가 발생했습니다.";
       toast.error(errorMsg);

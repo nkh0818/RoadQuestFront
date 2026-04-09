@@ -10,16 +10,11 @@ import {
   ChevronUp,
 } from "lucide-react";
 import FadeIn from "../common/FadeIn";
-import CommentSection from "./CommentSection";
-import useReviewStore from "../../store/useReviewStore";
 
 export default function MyReviewItem({ review, onDelete, index }) {
   const navigate = useNavigate();
 
   const [showMenu, setShowMenu] = useState(false);
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-  const { toggleLike, addComment, editComment, deleteComment } =
-    useReviewStore();
 
   const rId = review.reviewId;
 
@@ -32,8 +27,6 @@ export default function MyReviewItem({ review, onDelete, index }) {
   const displayDate = review.createdAt
     ? review.createdAt.split("T")[0].replace(/-/g, ".")
     : "방문일 정보 없음";
-
-  const commentCount = review.comments?.length ?? 0;
 
   return (
     <FadeIn delay={index * 100}>
@@ -160,54 +153,6 @@ export default function MyReviewItem({ review, onDelete, index }) {
             ))}
           </div>
         </div>
-
-        {/* 하단 액션 바 */}
-        <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
-          <div className="flex gap-5 items-center">
-            <button
-              onClick={() => toggleLike(rId)}
-              className="flex items-center gap-1.5 active:scale-90 transition-all"
-            >
-              <Heart
-                size={20}
-                strokeWidth={2.5}
-                className={review.liked ? "text-red-500" : "text-slate-400"}
-                fill={review.liked ? "currentColor" : "none"}
-              />
-              <span
-                className={`text-[13px] font-black ${review.liked ? "text-red-500" : "text-slate-400"}`}
-              >
-                {review.likeCount}
-              </span>
-            </button>
-            <button
-              onClick={() => setIsCommentsOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 text-slate-400 hover:text-[#3182CE] transition-colors"
-            >
-              {isCommentsOpen ? (
-                <ChevronUp size={20} strokeWidth={2.5} />
-              ) : (
-                <MessageSquare size={20} strokeWidth={2.5} />
-              )}
-              <span className="text-[13px] font-black">
-                {isCommentsOpen
-                  ? "댓글 접기"
-                  : `댓글 ${commentCount > 0 ? `(${commentCount})` : ""}`}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* 댓글 섹션 */}
-        {isCommentsOpen && (
-          <CommentSection
-            reviewId={rId}
-            comments={review.comments ?? []}
-            onAddComment={addComment}
-            onEditComment={editComment}
-            onDeleteComment={deleteComment}
-          />
-        )}
       </article>
     </FadeIn>
   );

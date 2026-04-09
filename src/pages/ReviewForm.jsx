@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import axios from "axios";
+import api from "../api/axios";
 
 import SubHeader from "../components/common/SubHeader";
 import StarRating from "../components/review/StarRating";
@@ -46,7 +46,7 @@ export default function ReviewFormView() {
     if (isValidId && !isEdit && !selectedRestArea) {
       const fetchRestArea = async () => {
         try {
-          const response = await axios.get(`/api/restareas/${id}`);
+          const response = await api.get(`/restareas/${id}`);
           const data = response.data;
           setSelectedRestArea({
             id: data.stdRestCd,

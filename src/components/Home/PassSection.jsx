@@ -26,7 +26,7 @@ export default function PassSection() {
 
   useEffect(() => {
     fetchUser();
-    fetchReviews();
+    fetchReviews(0, true);
     fetchFavorites();
   }, []);
 
@@ -64,12 +64,13 @@ export default function PassSection() {
   }
 
   const handleReviewClick = () => {
-    if (reviewCount === 0) navigate("/my-reviews"); //여기서 여행기록으로 연결하고 -> 여행기록에서 휴게소 클릭하면 상세페이지로 이동하거나 바로 리뷰페이지로 이어지는 경험 필요함
-    // 리뷰로 다시 바꿈! 여행기록에서 안뜸
+    if (reviewCount === 0) navigate("/my-reviews");
   };
 
   const reviewCount = user?.reviews?.length || 0;
   const progress = getXpPercentage();
+
+  const myReviewCount = reviews.length;
 
   // 2. 데이터 배열 정리
   const stats = [
@@ -78,7 +79,6 @@ export default function PassSection() {
       value: `${savedRestAreas.length}곳`,
       icon: <Heart size={18} fill="currentColor" fillOpacity={0.2} />,
       iconBg: "bg-pink-50 text-pink-500",
-      // 💡 추가: 찜 목록 페이지로 이동
       onClick: () => navigate("/place"),
       isSpecial: savedRestAreas.length > 0,
     },
@@ -87,15 +87,15 @@ export default function PassSection() {
       value: `${user?.userTitles?.length || 1}개`, 
       icon: <Trophy size={18} />,
       iconBg: "bg-amber-50 text-amber-500",
-      isSpecial: true, // 칭호 페이지 생기면 클릭 유도
-      onClick: () => toast.error("칭호 목록 페이지는 준비 중이에요!"), // 나중에 navigate("/titles")
+      isSpecial: true,
+      onClick: () => toast.error("칭호 목록 페이지는 준비 중이에요!"),
     },
     {
       label: "작성한 리뷰",
       value:
         reviews.length === 0
           ? "첫 리뷰를 작성해보세요!"
-          : `${reviews.length}개`,
+          : `${myReviewCount}개`,
       icon: <MessageSquare size={18} />,
       iconBg: "bg-blue-50 text-blue-500",
       isSpecial: reviews.length === 0,
@@ -106,12 +106,10 @@ export default function PassSection() {
   return (
     <section className=" mb-10">
       <div className="max-w-[600px] mx-auto relative overflow-hidden bg-white rounded-[2.5rem] p-7 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] border border-slate-100 transition-all hover:shadow-[0_40px_80px_-15px_rgba(49,130,206,0.12)]">
-        {/* 장식용 배경 광원 */}
         <div className="absolute -top-10 -right-10 w-48 h-48 bg-blue-100/50 rounded-full blur-[60px] pointer-events-none" />
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-slate-100 rounded-full blur-[50px] pointer-events-none" />
 
         <article className="max-w-[480px] mx-auto">
-          {/* 상단: 유저 정보 */}
           <div className="flex justify-between items-start mb-10 relative z-10">
             <div>
               <div className="flex items-center gap-2 mb-4">
@@ -125,7 +123,6 @@ export default function PassSection() {
                 <span className="text-slate-400">반가워요!</span>
               </h3>
             </div>
-            {/* 트로피 아이콘 박스 디자인 강화 */}
             <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-[1.5rem] flex items-center justify-center text-slate-800 border border-white shadow-inner">
               <Trophy
                 size={32}
@@ -198,20 +195,17 @@ function StatRow({ label, value, icon, iconBg, isSpecial, onClick }) {
       className={`flex items-center justify-between py-4 border-b border-gray-50 last:border-0 group px-2 ${onClick ? "cursor-pointer active:scale-95" : ""} transition-all`}
     >
       <div className="flex items-center gap-4 w-full">
-        {/* 아이콘 박스 */}
         <div
           className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:rotate-6 shadow-sm shrink-0 ${iconBg}`}
         >
           {icon}
         </div>
 
-        {/* 텍스트 영역: w-full과 min-w-0을 주어 내부 요소가 넘치지 않게 조절 */}
         <div className="flex flex-col min-w-0 flex-1">
           <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">
             {label}
           </span>
 
-          {/* 가로 정렬 컨테이너 */}
           <div className="flex items-center gap-1.5">
             <span
               className={`font-black tracking-tighter leading-none transition-colors truncate
@@ -220,15 +214,6 @@ function StatRow({ label, value, icon, iconBg, isSpecial, onClick }) {
             >
               {value}
             </span>
-
-            {/* 아이콘: shrink-0으로 찌그러짐 방지 */}
-            {isSpecial && (
-              <ChevronRight
-                size={16}
-                className="text-blue-500 shrink-0 animate-pulse"
-                strokeWidth={3}
-              />
-            )}
           </div>
         </div>
       </div>

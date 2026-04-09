@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
-import { Heart, MessageSquare } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { Heart, MessageSquare } from "lucide-react";
 
 export default function BestReviewRanking({ data }) {
   const [scrollIndex, setScrollIndex] = useState(0);
   const scrollRef = useRef(null);
-  
+
   const [isDrag, setIsDrag] = useState(false);
   const [startX, setStartX] = useState(0);
 
@@ -20,13 +20,13 @@ export default function BestReviewRanking({ data }) {
     }
   };
 
-  // 2. 
+  // 2.
   const onDragStart = (e) => {
     setIsDrag(true);
     setStartX(e.pageX + scrollRef.current.scrollLeft);
   };
 
-  // 3. 
+  // 3.
   const onDragMove = (e) => {
     if (!isDrag) return;
     e.preventDefault(); // 드래그 시 텍스트 선택 방지
@@ -35,7 +35,7 @@ export default function BestReviewRanking({ data }) {
     }
   };
 
-  // 4. 
+  // 4.
   const onDragEnd = () => {
     setIsDrag(false);
   };
@@ -92,17 +92,18 @@ export default function BestReviewRanking({ data }) {
                 </p>
               </div>
 
-              <div className="mt-10 pt-6 border-t border-slate-100 flex justify-between items-center">
-
-                <div className="flex flex-col max-w-[60%]">
-                  <span className="text-[14px] font-black text-slate-950 truncate">
+              <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col gap-1.5">
+                {/* 1. 휴게소 이름 (위) */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[15px] font-black text-slate-950 truncate">
                     {review.restAreaName || "전국 휴게소"}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-end">
-                  <span className="text-[13px] font-bold text-slate-600">
-                    @{review.nickname}
+                {/* 2. 작성자 닉네임 (아래) */}
+                <div className="flex items-center">
+                  <span className="text-[13px] font-bold text-slate-500">
+                    @{review.nickname || "익명"}
                   </span>
                 </div>
               </div>
