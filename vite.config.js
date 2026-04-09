@@ -17,6 +17,3 @@ export default defineConfig({
     },
   },
 })
-
-
-http://43.200.160.144/
