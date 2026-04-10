@@ -5,7 +5,7 @@ const useSearchStore = create((set, get) => ({
   // 상태 정의
   searchTerm: "",
   sortBy: "distance",
-  searchResults: [],
+  searchResults: null,
   isLoading: false,
   page: 0,
   hasMore: true,
@@ -17,10 +17,15 @@ const useSearchStore = create((set, get) => ({
 
     try {
       const res = await api.get(`/restareas/random?page=${pageNum}&size=10`);
-      const fetchedData = Array.isArray(res.data) ? res.data : (res.data.content || []);
+      const fetchedData = Array.isArray(res.data)
+        ? res.data
+        : res.data.content || [];
 
       set({
-        searchResults: pageNum === 0 ? fetchedData : [...get().searchResults, ...fetchedData],
+        searchResults:
+          pageNum === 0
+            ? fetchedData
+            : [...get().searchResults, ...fetchedData],
         page: pageNum,
         hasMore: fetchedData.length === 10,
       });
@@ -34,8 +39,9 @@ const useSearchStore = create((set, get) => ({
   // 검색어 설정 및 검색 실행
   setSearchTerm: async (term) => {
     const trimmedTerm = term?.trim() || "";
-
-    set({ searchTerm: trimmedTerm, page: 0, searchResults: [] });
+    set({
+      searchTerm: trimmedTerm, page: 0, isLoading: true,
+    });
 
     if (!trimmedTerm) {
       get().fetchInitialData(0);
@@ -44,14 +50,17 @@ const useSearchStore = create((set, get) => ({
 
     set({ isLoading: true });
     try {
-      api.post(`/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`).catch(() => {});
+      api
+        .post(`/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`)
+        .catch(() => {});
 
       const res = await api.get(
-        `/restareas/search-name?keyword=${encodeURIComponent(trimmedTerm)}&page=0&size=10`
+        `/restareas/search-name?keyword=${encodeURIComponent(trimmedTerm)}&page=0&size=10`,
       );
 
       const data = res.data.content || [];
-      const isLast = res.data.last !== undefined ? res.data.last : data.length < 10;
+      const isLast =
+        res.data.last !== undefined ? res.data.last : data.length < 10;
 
       set({
         searchResults: data,
@@ -59,7 +68,7 @@ const useSearchStore = create((set, get) => ({
         page: 0,
       });
     } catch (error) {
-      console.error("검색/기록 에러:", error);
+      console.error("검색 에러:", error);
       set({ searchResults: [], hasMore: false });
     } finally {
       set({ isLoading: false });
@@ -68,13 +77,14 @@ const useSearchStore = create((set, get) => ({
 
   setSortBy: (sort) => set({ sortBy: sort }),
 
-  resetSearch: () => set({
-    searchTerm: "",
-    sortBy: "distance",
-    searchResults: [],
-    page: 0,
-    hasMore: true,
-  }),
+  resetSearch: () =>
+    set({
+      searchTerm: "",
+      sortBy: "distance",
+      searchResults: [],
+      page: 0,
+      hasMore: true,
+    }),
 
   // 필터 및 정렬 데이터 반환
   getFilteredItems: () => {

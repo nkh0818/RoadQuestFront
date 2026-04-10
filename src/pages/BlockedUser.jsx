@@ -3,6 +3,7 @@ import { ArrowLeft, UserX, Trash2, Loader2 } from "lucide-react";
 import axios from "axios";
 import SubHeader from "../components/common/SubHeader";
 import FadeIn from "../components/common/FadeIn";
+import toast from "react-hot-toast";
 
 export default function BlockedUser() {
   const [blockedUsers, setBlockedUsers] = useState([]);
@@ -39,10 +40,10 @@ export default function BlockedUser() {
 
       // 목록에서 즉시 제거 (UX)
       setBlockedUsers((prev) => prev.filter((user) => user.userId !== userId));
-      alert("차단이 해제되었습니다.");
+      toast.success("차단이 해제되었습니다.");
     } catch (err) {
       console.log(err);
-      alert("해제에 실패했습니다.");
+      toast.error("해제에 실패했습니다.");
     }
   };
 

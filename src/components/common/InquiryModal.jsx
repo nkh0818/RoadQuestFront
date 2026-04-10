@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X, Send, MessageSquare, AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function InquiryModal({ isOpen, onClose }) {
   const [inquiry, setInquiry] = useState("");
@@ -10,13 +11,13 @@ export default function InquiryModal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (inquiry.trim().length < 5) return alert("최소 5자 이상 입력해주세요!");
+    if (inquiry.trim().length < 5) return toast.error("최소 5자 이상 입력해주세요!");
 
     setIsSubmitting(true);
     
     // [백엔드 연결 시점] axios.post('/api/inquiries', { content: inquiry })
     setTimeout(() => {
-      alert("문의가 접수되었습니다. 빠른 시일 내에 답변 드릴게요!");
+      toast.success("문의가 접수되었습니다. 빠른 시일 내에 답변 드릴게요!");
       setInquiry("");
       setIsSubmitting(false);
       onClose();

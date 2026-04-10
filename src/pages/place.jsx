@@ -27,7 +27,6 @@ export default function Place() {
             </h2>
           </div>
         }
-        // 우측 슬롯에 '총 개수' 정보 전달
         rightElement={
           <span className="text-[14px] font-bold text-gray-400 self-end mb-1">
             총 <span className="text-blue-600">{savedRestAreas.length}</span>곳
@@ -62,12 +61,6 @@ export default function Place() {
                   <h4 className="font-black text-gray-900 text-[20px] tracking-tight group-hover:text-blue-600 transition-colors">
                     {restArea.dbName}
                   </h4>
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-block w-1 h-1 rounded-full bg-gray-300 group-hover:bg-[#64CCC5]/40 transition-colors" />
-                    <p className="text-[13px] text-gray-400 font-bold group-hover:text-gray-500 transition-colors">
-                      {restArea.routeName}
-                    </p>
-                  </div>
                 </div>
               </div>
               <div className="w-10 h-10 rounded-full flex items-center justify-center group-hover:bg-[#64CCC5]/5 transition-all">

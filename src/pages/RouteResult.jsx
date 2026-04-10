@@ -23,7 +23,6 @@ export default function RouteResultPage() {
 
       setIsLoading(true);
       try {
-        // 1. API 호출과 데이터 매핑을 한 번에!
         const mappedData = await searchRestAreas(start, end);
         setRouteResults(mappedData);
         console.log(mappedData);

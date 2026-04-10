@@ -7,11 +7,8 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 
 export default function ReviewListView() {
   const navigate = useNavigate();
-
-  // Zustand에서 상태와 함수 가져오기
   const { reviews, isLoading, fetchReviews, deleteReview } = useReviewStore();
 
-  // 페이지 진입 시 데이터 호출
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);

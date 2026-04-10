@@ -35,7 +35,7 @@ const navigate = useNavigate();
           </span>
         </div>
         <h2 className="text-[32px] font-black text-slate-900 tracking-tighter leading-tight">
-          오늘의 <span className="text-blue-600">최저가</span> 주유소
+          오늘의 <span className="text-blue-600 underline underline-offset-8 decoration-blue-100">최저가</span> 주유소
           <br />
         </h2>
       </div>
@@ -48,7 +48,6 @@ const navigate = useNavigate();
             onClick={() => handleDetailMove(gas.stdRestCd || gas.id)}
             className="group relative bg-white border border-slate-100 rounded-[2.5rem] p-6 transition-all hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] hover:border-blue-200 cursor-pointer active:scale-[0.98]"
           >
-            {/* 배경 순위 숫자 (은은한 데코) */}
             <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[80px] font-black text-slate-50 group-hover:text-blue-50/50 transition-colors pointer-events-none italic z-0">
               {index + 1}
             </span>
@@ -67,7 +66,6 @@ const navigate = useNavigate();
                       {gas.dbName || gas.name}
                     </span>
                     <div className="flex items-center gap-1 text-slate-400">
-                      <Navigation size={10} strokeWidth={3} />
                       <span className="text-[12px] font-bold uppercase tracking-tight">{gas.routeName}</span>
                     </div>
                   </div>

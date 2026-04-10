@@ -10,6 +10,7 @@ export const useSavedStore = create((set, get) => ({
     try {
       const data = await fetchMyFavoritesApi();
       set({ savedRestAreas: data || [] });
+      console.log("📡 API 응답 원본:", data);
     } catch (error) {
       console.error("찜 목록 로드 실패", error);
     } finally {

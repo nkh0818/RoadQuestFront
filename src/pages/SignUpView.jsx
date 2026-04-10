@@ -69,7 +69,7 @@ export default function SignUpView() {
           ? errorMsg
           : errorMsg.message || "이미 등록된 정보가 있습니다.";
 
-      alert(finalMsg);
+      toast.error(finalMsg);
     }
   };
 

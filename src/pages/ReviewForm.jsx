@@ -26,7 +26,6 @@ export default function ReviewFormView() {
   const reviewData = location.state?.review;
   const isEdit = !!reviewData;
 
-  // 1. 휴게소 선택 상태 관리
   const [selectedRestArea, setSelectedRestArea] = useState(() => {
     if (isEdit && reviewData) {
       return {
@@ -39,7 +38,7 @@ export default function ReviewFormView() {
     return null;
   });
 
-  // 2. 단건 조회 API 연동 (id가 숫자로 올 때 자동 세팅)
+  // 2. 단건 조회 API 연동
   useEffect(() => {
     const isValidId = id && id !== "undefined" && id !== "new";
 
@@ -93,7 +92,6 @@ export default function ReviewFormView() {
 
   const onHandleSubmit = (e) => {
     e.preventDefault();
-    // 🚩 수정 포인트 2: ID 전달 명확화
     submitToHook(e, selectedRestArea?.id);
   };
 

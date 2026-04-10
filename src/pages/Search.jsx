@@ -11,20 +11,25 @@ export default function SearchPage() {
   const observerRef = useRef(null);
 
   // Zustand 상태 추출
-  const { 
-    searchTerm, setSearchTerm, 
-    sortBy, setSortBy, 
-    getFilteredItems, 
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortBy,
+    setSortBy,
+    getFilteredItems,
     fetchInitialData,
-    page, hasMore, isLoading 
+    page,
+    hasMore,
+    isLoading,
   } = useSearchStore();
 
   const [inputValue, setInputValue] = useState(searchTerm);
   const [hotKeywords, setHotKeywords] = useState([]);
+  const filteredAndSortedItems = getFilteredItems();
 
-  // 1. 초기 데이터 및 핫키워드 로드
+  // 초기 데이터 및 핫키워드 로드
   useEffect(() => {
-    fetchInitialData(0); // 첫 페이지 로드
+    fetchInitialData(0);
     const getRanking = async () => {
       try {
         const data = await fetchHotKeywords();
@@ -37,17 +42,17 @@ export default function SearchPage() {
     getRanking();
   }, []);
 
-  // 2. 무한 스크롤 Observer 설정
+  //옵저버 설정
   useEffect(() => {
     if (!hasMore || isLoading) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          fetchInitialData(page + 1); // 다음 페이지 호출
+          fetchInitialData(page + 1);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     if (observerRef.current) observer.observe(observerRef.current);
@@ -62,16 +67,16 @@ export default function SearchPage() {
     return () => clearTimeout(timer);
   }, [inputValue]);
 
-  const filteredAndSortedItems = getFilteredItems();
-
   return (
     <div className="flex-1 min-h-screen w-full mx-auto bg-white flex flex-col relative overflow-hidden">
-      
       {/* 고정 상단 영역 */}
       <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-50">
         <SubHeader>
           <div className="flex-1 bg-slate-100/80 rounded-full px-5 py-4 flex items-center gap-3 group focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-            <Search size={18} className={inputValue ? "text-blue-600" : "text-slate-400"} />
+            <Search
+              size={18}
+              className={inputValue ? "text-blue-600" : "text-slate-400"}
+            />
             <input
               type="text"
               value={inputValue}
@@ -80,7 +85,12 @@ export default function SearchPage() {
               className="bg-transparent outline-none text-[15px] w-full font-bold text-slate-800 placeholder:text-slate-400"
             />
             {inputValue && (
-              <button onClick={() => { setInputValue(""); setSearchTerm(""); }}>
+              <button
+                onClick={() => {
+                  setInputValue("");
+                  setSearchTerm("");
+                }}
+              >
                 <X size={18} className="text-slate-300 hover:text-slate-500" />
               </button>
             )}
@@ -88,12 +98,17 @@ export default function SearchPage() {
         </SubHeader>
 
         {/* 핫 트렌드 가로 스크롤 */}
-        <div className="px-6 py-3 overflow-x-auto no-scrollbar flex gap-2 items-center">
-          <span className="shrink-0 text-[11px] font-black text-blue-600 uppercase tracking-tighter mr-1">지금 제일 핫해요!</span>
+        <div className="px-6 py-3 overflow-x-auto scrollbar-hide flex gap-2 items-center">
+          <span className="shrink-0 text-[11px] font-black text-blue-600 uppercase tracking-tighter mr-1">
+            지금 제일 핫해요!
+          </span>
           {hotKeywords?.map((word) => (
             <button
               key={word}
-              onClick={() => { setInputValue(word); setSearchTerm(word); }}
+              onClick={() => {
+                setInputValue(word);
+                setSearchTerm(word);
+              }}
               className="shrink-0 px-4 py-1.5 bg-slate-50 rounded-full text-[13px] font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-100"
             >
               {word}
@@ -104,23 +119,60 @@ export default function SearchPage() {
 
       {/* 메인 리스트 영역 */}
       <div className="flex-1 flex flex-col overflow-y-auto scrollbar-hide">
-        <SearchResultList
-          items={filteredAndSortedItems}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          onItemClick={(id) => navigate(`/detail/${id}`)}
-        />
-        
-        {/* 무한 스크롤 바닥 감지 및 로더 */}
-        <div ref={observerRef} className="h-40 flex items-center justify-center bg-[#F8FAFC]">
-          {isLoading && (
+        {/* 1. 최초 로딩 처리: 데이터가 아예 없고(null) 로딩 중일 때는 리스트 대신 큰 로더 노출 */}
+        {isLoading && filteredAndSortedItems.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] gap-3">
+            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            <p className="text-slate-500 font-bold">
+              휴게소 정보를 불러오는 중입니다...
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* 2. 실제 리스트 노출 (데이터가 있을 때) */}
+            {filteredAndSortedItems.length > 0 ? (
+              <SearchResultList
+                items={filteredAndSortedItems}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                onItemClick={(id) => navigate(`/detail/${id}`)}
+              />
+            ) : (
+              /* 3. 로딩이 끝났는데도 데이터가 0개일 때만 "결과 없음" 노출 */
+              !isLoading && (
+                <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
+                  <p className="text-slate-400 font-bold text-[15px]">
+                    찾으시는 휴게소가 없습니다.
+                  </p>
+                  <p className="text-slate-300 text-[13px] mt-1">
+                    검색어를 다시 확인해 주세요.
+                  </p>
+                </div>
+              )
+            )}
+          </>
+        )}
+
+        {/* 4. 하단 무한 스크롤 관찰 영역 */}
+        <div
+          ref={observerRef}
+          className="h-40 flex items-center justify-center bg-[#F8FAFC]"
+        >
+          {/* 추가 데이터를 가져올 때만 하단 스피너 노출 */}
+          {isLoading && filteredAndSortedItems.length > 0 && (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
-              <p className="text-[12px] font-bold text-slate-400">데이터 로드 중...</p>
+              <p className="text-[12px] font-bold text-slate-400">
+                데이터 로드 중...
+              </p>
             </div>
           )}
+
+          {/* 더 이상 데이터가 없을 때 */}
           {!hasMore && filteredAndSortedItems.length > 0 && (
-            <p className="text-[13px] font-bold text-slate-300">모든 휴게소를 불러왔습니다.</p>
+            <p className="text-[13px] font-bold text-slate-300">
+              모든 휴게소를 불러왔습니다.
+            </p>
           )}
         </div>
       </div>
