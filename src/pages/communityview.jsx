@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useRef, useCallback } from "react"; // 🚩 useRef, useCallback 추가
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import {
   MapPin,
   SearchX,
@@ -11,20 +17,34 @@ import {
 import SubHeader from "../components/common/SubHeader";
 import Flotingwrite from "../components/common/Flotingwrite";
 import { useInquiryStore } from "../store/useInquiryStore";
-import useReviewStore from '../store/useReviewStore';
+import useReviewStore from "../store/useReviewStore";
 import { useUserStore } from "../store/useUserStore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function CommunityView() {
   const [activeTag, setActiveTag] = useState("전체");
-  const keywords = ["전체", "#돈가스", "#경치맛집", "#화장실깨끗", "#실시간정체"];
+  const keywords = [
+    "전체",
+    "#돈가스",
+    "#경치맛집",
+    "#화장실깨끗",
+    "#실시간정체",
+  ];
 
-  const { reviews, fetchReviews, fetchNextPage, hasMore, isLoading } = useReviewStore();
+  const reviews = useReviewStore((state) => state.reviews);
+  const fetchReviews = useReviewStore((state) => state.fetchReviews);
+  const fetchNextPage = useReviewStore((state) => state.fetchNextPage);
+  const hasMore = useReviewStore((state) => state.hasMore);
+  const isLoading = useReviewStore((state) => state.isLoading);
+
+
   const user = useUserStore((state) => state.user);
+  
   const currentUserNickname = user?.nickname;
 
   const observerTarget = useRef(null);
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     fetchReviews(0);
@@ -32,26 +52,38 @@ export default function CommunityView() {
 
   const onIntersect = useCallback(
     ([entry]) => {
-      // 1. 화면에 나타났고 2. 더 가져올 데이터가 있고 3. 지금 로딩 중이 아닐 때
-      if (entry.isIntersecting && hasMore && !isLoading) {
+      // 1. 화면 노출 && 2. 더 데이터가 있고 && 3. 로딩 중이 아니고 && 4. 락이 안 걸렸을 때
+      if (entry.isIntersecting && hasMore && !isLoading && !isFetchingRef.current) {
+        
+        isFetchingRef.current = true;
         fetchNextPage();
+
+        setTimeout(() => {
+          isFetchingRef.current = false;
+        }, 1000);
       }
     },
     [hasMore, isLoading, fetchNextPage]
   );
 
   useEffect(() => {
-    if (!observerTarget.current) return;
+  // 로딩 중일 때는 감시 중지
+  if (!observerTarget.current || isLoading) return;
 
-    const observer = new IntersectionObserver(onIntersect, { threshold: 1.0 });
-    observer.observe(observerTarget.current);
+  const observer = new IntersectionObserver(onIntersect, {
+    threshold: 0.5,
+    rootMargin: "0px 0px 100px 0px",
+  });
 
-    return () => observer.disconnect();
-  }, [onIntersect]);
+  observer.observe(observerTarget.current);
+  return () => observer.disconnect();
+}, [onIntersect, isLoading]);
 
   const filteredReviews = useMemo(() => {
     if (activeTag === "전체") return reviews;
-    return reviews.filter((review) => review.tags?.includes(activeTag.replace('#', '')));
+    return reviews.filter((review) =>
+      review.tags?.includes(activeTag.replace("#", "")),
+    );
   }, [activeTag, reviews]);
 
   return (
@@ -86,21 +118,24 @@ export default function CommunityView() {
                 currentUserNickname={currentUserNickname}
               />
             ))}
+
+            {!isLoading && hasMore && (
+              <div ref={observerTarget} className="h-10 w-full" />
+            )}
             
-            <div ref={observerTarget} className="py-10 flex justify-center items-center">
-              {isLoading && hasMore && (
+            {isLoading && (
+              <div className="py-10 flex justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-              )}
-              {!hasMore && reviews.length > 0 && (
-                <p className="text-slate-400 text-sm font-bold">마지막 리뷰입니다 🥔</p>
-              )}
-            </div>
+              </div>
+            )}
           </>
         ) : (
           !isLoading && (
             <div className="py-32 flex flex-col items-center justify-center text-slate-300">
               <SearchX size={60} className="mb-4 opacity-20" />
-              <p className="font-black text-[15px]">해당 태그의 리뷰가 아직 없어요</p>
+              <p className="font-black text-[15px]">
+                해당 태그의 리뷰가 아직 없어요
+              </p>
             </div>
           )
         )}
@@ -245,9 +280,10 @@ function ReviewCard({ post, currentUserNickname }) {
                 ) : (
                   // 남의 글일 때 메뉴
                   <>
-                    <button 
-                    onClick={handleBlock}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                    <button
+                      onClick={handleBlock}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 text-[13px] font-black text-slate-600 hover:bg-slate-50 rounded-xl transition-colors"
+                    >
                       <UserMinus size={14} /> 차단하기
                     </button>
                     <button

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import api from "../api/axios";
+import toast from "react-hot-toast";
 
 const useSearchStore = create((set, get) => ({
   // 상태 정의
@@ -39,16 +40,23 @@ const useSearchStore = create((set, get) => ({
   // 검색어 설정 및 검색 실행
   setSearchTerm: async (term) => {
     const trimmedTerm = term?.trim() || "";
-    set({
-      searchTerm: trimmedTerm, page: 0, isLoading: true,
-    });
 
+    // 검색어가 비어있을 때 처리
     if (!trimmedTerm) {
+      set({ searchTerm: "", page: 0, isLoading: true });
       get().fetchInitialData(0);
       return;
     }
 
-    set({ isLoading: true });
+    // 2글자 이하일 때
+    if (trimmedTerm.length < 2) {
+      toast.error("검색어는 2글자 이상 입력해주세요!");
+      set({ searchTerm: trimmedTerm });
+      return;
+    }
+
+    set({ searchTerm: trimmedTerm, page: 0, isLoading: true });
+
     try {
       api
         .post(`/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`)

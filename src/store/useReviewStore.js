@@ -18,7 +18,7 @@ const useReviewStore = create((set, get) => ({
   // 리뷰 데이터 가져오기 (커뮤니티/전체)
   fetchReviews: async (pageNum = 0) => {
     if (get().isLoading) return;
-
+    
     set({ isLoading: true });
     try {
       // 백엔드 페이징 API 호출

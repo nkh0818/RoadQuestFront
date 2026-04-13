@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MapPin, Star, Utensils, Camera, PartyPopper, Navigation, Fuel } from 'lucide-react';
 import SubHeader from '../components/common/SubHeader';
+import toast from 'react-hot-toast';
 
 export default function AiGuideResultView() {
   const location = useLocation();
@@ -20,6 +21,11 @@ export default function AiGuideResultView() {
     };
     return messages[selection.priority] || "-- 취향을 완벽 분석한\n최적의 경로입니다!";
   };
+
+  const handleCardClick = () => {
+    toast.error("이 휴게소는 준비 중인 가짜 데이터입니다.");
+    return;
+};
 
   return (
     <div className="min-h-screen bg-slate-50 font-['Pretendard']">
@@ -50,7 +56,7 @@ export default function AiGuideResultView() {
             {filteredList.map((area, index) => (
               <div 
                 key={area.stdRestCd || index}
-                onClick={() => navigate(`/rest-area/${area.stdRestCd}`)}
+                onClick={() => handleCardClick(area)}
                 className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 active:scale-[0.98] transition-all relative overflow-hidden group"
               >
                 <div className="absolute top-0 left-0 bg-blue-600 text-white px-5 py-2 rounded-br-2xl font-black text-[13px] z-10">
