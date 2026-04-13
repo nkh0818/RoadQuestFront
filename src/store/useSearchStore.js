@@ -100,11 +100,15 @@ const useSearchStore = create((set, get) => ({
     const { searchResults, sortBy } = get();
     if (!Array.isArray(searchResults) || searchResults.length === 0) return [];
 
-    return [...searchResults].sort((a, b) => {
+    const onlyRestAreas = searchResults.filter(item => {
+      const name = item.dbName || "";
+      return !name.includes("주유소") && !name.includes("충전소");
+    });
+
+    return [...onlyRestAreas].sort((a, b) => {
       if (sortBy === "price") {
         return (a.gasolinePrice || Infinity) - (b.gasolinePrice || Infinity);
       } else if (sortBy === "distance") {
-        // distance 필드가 있으면 거리순, 없으면 원래 순서 유지
         if (a.distance != null && b.distance != null) {
           return a.distance - b.distance;
         }

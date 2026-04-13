@@ -18,7 +18,7 @@ export default function RestAreaSelectorModal({ onSelect, onClose }) {
     if (!inputValue.trim()) return;
 
     const timer = setTimeout(() => {
-      setSearchTerm(inputValue); 
+      setSearchTerm(inputValue);
     }, 500);
 
     return () => clearTimeout(timer);
@@ -45,7 +45,8 @@ export default function RestAreaSelectorModal({ onSelect, onClose }) {
     });
   };
 
-  const filteredResults = searchResults.filter((item) => {
+  const filteredResults = (searchResults || []).filter((item) => {
+    if (!item) return false;
     const name = item.dbName || item.name || "";
     return !name.includes("주유소") && !name.includes("충전소");
   });
@@ -96,7 +97,7 @@ export default function RestAreaSelectorModal({ onSelect, onClose }) {
 
         {/* 결과 리스트 */}
         <div className="flex-1 overflow-y-auto space-y-1 no-scrollbar">
-          {!isLoading && searchResults.length === 0 && (
+          {!isLoading && (searchResults?.length === 0 || !searchResults) && (
             <div className="flex flex-col items-center justify-center py-12 text-slate-400">
               <MapPin size={36} strokeWidth={2} className="mb-3 opacity-40" />
               <p className="text-[14px] font-bold">검색 결과가 없어요</p>
