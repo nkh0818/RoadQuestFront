@@ -57,7 +57,7 @@ export default function Detail() {
       <DetailInfo data={data} />
 
       {/* 플로팅 글쓰기 버튼 */}
-      {id && <Flotingwrite restAreaId={id} />}
+      {id && <Flotingwrite restAreaId={id} restAreaName={data.info.dbName}/>}
     </div>
   );
 }

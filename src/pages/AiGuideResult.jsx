@@ -11,7 +11,18 @@ export default function AiGuideResultView() {
   const { recommendations, selection } = location.state || { recommendations: [], selection: {} };
   console.log("AI 추천 리스트 원본 데이터:", recommendations);
 
-  const filteredList = recommendations?.filter(area => !area.dbName.includes('주유소')) || [];
+  const baseList = recommendations?.filter(area => !area.dbName.includes('주유소')) || [];
+
+  const filteredList = baseList.map((area, index) => {
+    const realIds = ["000054", "000028", "000509"];
+    const realNames = ["건천(부산)휴게소", "신탄진(서울)휴게소", "홍천(서울)휴게소"];
+
+    return {
+      ...area,
+      stdRestCd: realIds[index] || area.stdRestCd,
+      dbName: realNames[index] || area.dbName
+    };
+  });
 
   const getAiMessage = () => {
     const messages = {
@@ -22,10 +33,13 @@ export default function AiGuideResultView() {
     return messages[selection.priority] || "-- 취향을 완벽 분석한\n최적의 경로입니다!";
   };
 
-  const handleCardClick = () => {
-    toast.error("이 휴게소는 준비 중인 가짜 데이터입니다.");
-    return;
-};
+  const handleCardClick = (area) => {
+    if (!area.stdRestCd) {
+      toast.error("정보를 불러올 수 없습니다.");
+      return;
+    }
+    navigate(`/detail/${area.stdRestCd}`);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 font-['Pretendard']">

@@ -3,7 +3,6 @@ import axios from 'axios';
 // 서버의 주소 등의 네트워크를 설정합니다.
 
 const api = axios.create({
-  // baseURL: import.meta.env.VITE_API_URL + '/api',
   baseURL: '/api',
   withCredentials: true,
 });

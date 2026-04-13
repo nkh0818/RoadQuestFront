@@ -23,21 +23,14 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function CommunityView() {
+
   const [activeTag, setActiveTag] = useState("전체");
-  const keywords = [
-    "전체",
-    "#돈가스",
-    "#경치맛집",
-    "#화장실깨끗",
-    "#실시간정체",
-  ];
 
   const reviews = useReviewStore((state) => state.reviews);
   const fetchReviews = useReviewStore((state) => state.fetchReviews);
   const fetchNextPage = useReviewStore((state) => state.fetchNextPage);
   const hasMore = useReviewStore((state) => state.hasMore);
   const isLoading = useReviewStore((state) => state.isLoading);
-
 
   const user = useUserStore((state) => state.user);
   
@@ -49,6 +42,29 @@ export default function CommunityView() {
   useEffect(() => {
     fetchReviews(0);
   }, []);
+
+  const dynamicKeywords = useMemo(() => {
+    if (!reviews || reviews.length === 0) {
+      return ["전체", "#돈가스", "#경치맛집", "#화장실깨끗"]; // 데이터 없을 때 대비
+    }
+
+    // 리뷰들에서 태그만 다 모아서 빈도수 계산
+    const tagMap = {};
+    reviews.forEach(post => {
+      post.tags?.forEach(tag => {
+        const cleanTag = tag.trim();
+        tagMap[cleanTag] = (tagMap[cleanTag] || 0) + 1;
+      });
+    });
+
+    // 순서대로 정렬해서 상위 4개만 가져오기
+    const topTags = Object.keys(tagMap)
+      .sort((a, b) => tagMap[b] - tagMap[a])
+      .slice(0, 4)
+      .map(tag => `#${tag}`);
+
+    return ["전체", ...topTags];
+  }, [reviews]);
 
   const onIntersect = useCallback(
     ([entry]) => {
@@ -91,8 +107,8 @@ export default function CommunityView() {
       <SubHeader title="커뮤니티" />
 
       {/* 태그 필터링 섹션 (기존과 동일) */}
-      <section className="bg-white py-4 border-b border-slate-100 flex gap-2.5 px-5 overflow-x-auto scrollbar-hide sticky top-[60px] z-10">
-        {keywords.map((tag) => (
+      <section className="bg-white py-4 ... overflow-x-auto scrollbar-hide sticky top-[60px] z-10">
+        {dynamicKeywords.map((tag) => (
           <button
             key={tag}
             onClick={() => setActiveTag(tag)}

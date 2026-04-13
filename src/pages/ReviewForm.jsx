@@ -35,6 +35,16 @@ export default function ReviewFormView() {
         longitude: reviewData.longitude ?? null,
       };
     }
+
+    if (id) {
+    return {
+      id: id,
+      name: location.state?.areaName || "선택된 휴게소",
+      latitude:  null,
+      longitude: null,
+    };
+  }
+
     return null;
   });
 
@@ -42,20 +52,47 @@ export default function ReviewFormView() {
   useEffect(() => {
     const isValidId = id && id !== "undefined" && id !== "new";
 
-    if (isValidId && !isEdit && !selectedRestArea) {
+    if (isValidId && !isEdit && (!selectedRestArea || selectedRestArea.name === "선택된 휴게소")) {
       const fetchRestArea = async () => {
         try {
-          const response = await api.get(`/restareas/${id}`);
+          console.log("[API 요청] 상세 정보 호출 시작 - ID:", id);
+          
+          const response = await api.get(`/restareas/detail/${id}`);
+          console.log("[API 응답] 전체 데이터:", response.data);
+          
           const data = response.data;
-          setSelectedRestArea({
-            id: data.stdRestCd,
-            name: data.dbName,
-            latitude: data.latitude,
-            longitude: data.longitude,
-          });
+
+
+          if (data && data.info) {
+            console.log("[데이터 확인] info 객체를 찾았습니다:", data.info);
+            
+            const restInfo = data.info;
+            
+            setSelectedRestArea({
+              id: restInfo.stdRestCd || restInfo.id,
+              name: restInfo.dbName || restInfo.name, 
+              latitude: restInfo.latitude,
+              longitude: restInfo.longitude,
+            });
+            
+            console.log("[상태 업데이트 완료] 적용된 이름:", restInfo.dbName || restInfo.name);
+          } else {
+            console.warn("[주의] data.info가 없습니다. data 자체를 확인해 보세요.");
+            
+            setSelectedRestArea({
+              id: data.stdRestCd || data.id,
+              name: data.dbName || data.name,
+              latitude: data.latitude,
+              longitude: data.longitude,
+            });
+          }
+
         } catch (error) {
-          console.error("휴게소 정보 로드 실패:", error);
-          setSelectedRestArea(null);
+          console.error("❌ [API 에러] 휴게소 정보 로드 실패:", error);
+          if (error.response) {
+            console.error("에러 상태:", error.response.status);
+            console.error("에러 내용:", error.response.data);
+          }
         }
       };
       fetchRestArea();

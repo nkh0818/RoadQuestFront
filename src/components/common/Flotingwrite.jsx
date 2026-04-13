@@ -2,12 +2,14 @@ import { Plus } from 'lucide-react';
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-export default function Flotingwrite({ restAreaId }) {
+export default function Flotingwrite({ restAreaId, restAreaName }) {
     const navigate = useNavigate();
 
     const handleClick = () => {
         if (restAreaId && restAreaId !== "undefined") {
-            navigate(`/review/write/${restAreaId}`);
+            navigate(`/review/write/${restAreaId}`, {
+        state: { areaName: restAreaName } // 👈 여기서 이름을 실어 보냄
+      });
         } else {
             navigate(`/review/write/new`);
         }
