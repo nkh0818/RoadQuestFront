@@ -59,8 +59,9 @@ const useSearchStore = create((set, get) => ({
 
     try {
       api
-        .post(`/ranking/record?keyword=${encodeURIComponent(trimmedTerm)}`)
-        .catch(() => {});
+        .post(`/ranking/record`, { keyword: trimmedTerm })
+        .then(() => console.log("✅ 랭킹 기록 성공:", trimmedTerm))
+        .catch((err) => console.error("❌ 랭킹 기록 실패:", err));
 
       const res = await api.get(
         `/restareas/search-name?keyword=${encodeURIComponent(trimmedTerm)}&page=0&size=10`,
