@@ -22,13 +22,19 @@ export default function MyPageView() {
   const { reviews } = useReviewStore();
 
   const navigate = useNavigate();
-  const { user, fetchUser, isLoading, logout, changeNickname, getXpPercentage } =
-    useUserStore();
+  const {
+    user,
+    fetchUser,
+    isLoading,
+    logout,
+    changeNickname,
+    getXpPercentage,
+  } = useUserStore();
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
-console.log("현재 로그인한 유저 데이터:", user);
+  console.log("현재 로그인한 유저 데이터:", user);
   // 프로필 업데이트 핸들러 (ProfileAvatar에서 호출)
   const handleProfileUpdate = async (newImageUrl) => {
     try {
@@ -45,7 +51,9 @@ console.log("현재 로그인한 유저 데이터:", user);
   if (!user)
     return (
       <div className="p-20 text-center space-y-4">
-        <p className="font-bold text-slate-600">로그인이 필요한 서비스입니다.</p>
+        <p className="font-bold text-slate-600">
+          로그인이 필요한 서비스입니다.
+        </p>
         <button
           onClick={() => navigate("/login")}
           className="px-6 py-2 bg-blue-600 text-white rounded-xl"
@@ -62,11 +70,12 @@ console.log("현재 로그인한 유저 데이터:", user);
     }
     try {
       // 변경된 사진이 있으면 새 주소를, 없으면 기존 유저 사진 주소를 사용
-      const finalProfileImage = profilePreviews.length > 0 ? profilePreviews[0] : user.profileImage;
-      
+      const finalProfileImage =
+        profilePreviews.length > 0 ? profilePreviews[0] : user.profileImage;
+
       // 닉네임과 함께 이미지 주소도 같이 변경 (스토어 함수가 지원해야 함)
-      await changeNickname(tempNickname, finalProfileImage); 
-      
+      await changeNickname(tempNickname, finalProfileImage);
+
       setIsEditing(false);
       setProfilePreviews([]); // 저장 후 프리뷰 초기화
       toast.success("정보가 변경되었습니다.");
@@ -94,7 +103,9 @@ console.log("현재 로그인한 유저 데이터:", user);
     <div className="min-h-screen bg-[#F8FAFC] pb-20">
       <SubHeader
         title={
-          <span className="text-[18px] font-black text-slate-900">마이페이지</span>
+          <span className="text-[18px] font-black text-slate-900">
+            마이페이지
+          </span>
         }
         rightElement={
           <div className="flex gap-2">
@@ -115,7 +126,10 @@ console.log("현재 로그인한 유저 데이터:", user);
               </div>
             ) : (
               <button
-                onClick={() => { setTempNickname(user.nickname); setIsEditing(true); }}
+                onClick={() => {
+                  setTempNickname(user.nickname);
+                  setIsEditing(true);
+                }}
                 className="p-2.5 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <Settings size={22} />
@@ -128,17 +142,28 @@ console.log("현재 로그인한 유저 데이터:", user);
       <section className="relative px-6 pt-6 pb-12 overflow-hidden">
         <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-60" />
         <div className="relative flex flex-col items-center">
-<ProfileAvatar
-  previewUrl={
-    profilePreviews[0] || 
-    user?.profileImage || 
-    user?.profileImageUrl || 
-    user?.image 
-  }
-  isEditing={isEditing}
-  onUpdate={handleProfileUpdate} 
-/>
+          <ProfileAvatar
+            previewUrl={
+              profilePreviews[0] ||
+              user?.profileImage ||
+              user?.profileImageUrl ||
+              user?.image
+            }
+            isEditing={isEditing}
+            onUpdate={handleProfileUpdate}
+          />
           <div className="mt-6 text-center">
+            {!isEditing && user?.provider === "kakao" && (
+              <div className="flex justify-center mb-2">
+                <div className="flex items-center gap-1.5 bg-[#FEE500] px-2.5 py-0.5 rounded-full shadow-sm">
+                  <div className="w-2.5 h-2.5 bg-[#191919] rounded-full" />{" "}
+                  <span className="text-[10px] font-black text-[#191919] tracking-tight">
+                    KAKAO
+                  </span>
+                </div>
+              </div>
+            )}
+
             <ProfileInfo
               user={user}
               isEditing={isEditing}

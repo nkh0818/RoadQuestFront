@@ -29,6 +29,7 @@ import { Toaster } from 'react-hot-toast';
 import BlockedUser from './pages/BlockedUser';
 import ScrollToTop from './components/common/ScrollTop';
 import AiGuideResultView from './pages/AiGuideResult';
+import KakaoCallback from './pages/KaKaoCallback';
 
 function App() {
 
@@ -61,6 +62,7 @@ function App() {
             <Route path="/login" element={<LoginView />} />
             <Route path="/signup" element={<SignUpView />} />
             <Route path="/find" element={<FindAccountView />} />
+            <Route path="/kakao/callback" element={<KakaoCallback />} />
             
             {/* quickmenu */}
             {/* search */}

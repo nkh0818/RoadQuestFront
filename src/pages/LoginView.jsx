@@ -3,11 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, UserPlus, ShieldCheck } from "lucide-react";
 import SubHeader from "../components/common/SubHeader";
 
-import { loginWithLocal } from '../api/auth';
+import { loginWithLocal } from "../api/auth";
 import { useUserStore } from "../store/useUserStore";
 import toast from "react-hot-toast";
 
 export default function LoginView() {
+
+  const KAKAO_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
+  const REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+
   const navigate = useNavigate();
 
   const setUserData = useUserStore((state) => state.setUserData);
@@ -17,11 +21,11 @@ export default function LoginView() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    try{
+    try {
       const data = await loginWithLocal(formData.email, formData.password);
       setUserData(data);
       navigate("/");
-    }catch(e){
+    } catch (e) {
       console.error("로그인 실패:", e.res);
       toast.error("로그인에 실패했습니다.");
     }
@@ -30,14 +34,13 @@ export default function LoginView() {
   return (
     <div className="min-h-screen bg-white font-sans flex flex-col max-w-[600px] mx-auto">
       {/* 1. 상단 헤더 */}
-      <SubHeader 
-        title="로그인"
-      />
+      <SubHeader title="로그인" />
 
       <main className="flex-1 px-8 pt-8 pb-12">
         <div className="mb-14">
           <h1 className="text-[36px] font-black text-slate-900 leading-[1.1] tracking-tighter">
-            기다리고 있었어요!<br />
+            기다리고 있었어요!
+            <br />
             추억을 기록해볼까요?
           </h1>
           <div className="mt-4 flex items-center gap-2 text-slate-400 font-bold text-[15px]">
@@ -56,7 +59,9 @@ export default function LoginView() {
               type="email"
               placeholder="이메일 주소"
               className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 focus:bg-white transition-all font-bold text-slate-800 text-[16px] placeholder:text-slate-300 shadow-sm"
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               required
             />
           </div>
@@ -69,7 +74,9 @@ export default function LoginView() {
               type="password"
               placeholder="비밀번호"
               className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] py-6 pl-16 pr-8 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 focus:bg-white transition-all font-bold text-slate-800 text-[16px] placeholder:text-slate-300 shadow-sm"
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               required
             />
           </div>
@@ -93,11 +100,15 @@ export default function LoginView() {
         <div className="space-y-4">
           <button
             type="button"
-            onClick={() => console.log("카카오 로그인")}
+            onClick={() => {
+              window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+            }}
             className="w-full bg-[#FEE500] text-[#191919] rounded-[2.5rem] py-5 font-black text-[16px] shadow-sm active:scale-[0.97] transition-all flex items-center justify-center gap-4 group"
           >
             <div className="w-8 h-8 bg-[#3C1E1E] rounded-xl flex items-center justify-center shadow-inner group-hover:rotate-12 transition-transform">
-              <span className="text-[#FEE500] text-[12px] font-black italic">K</span>
+              <span className="text-[#FEE500] text-[12px] font-black italic">
+                K
+              </span>
             </div>
             카카오톡으로 빠른 시작
           </button>
@@ -106,9 +117,19 @@ export default function LoginView() {
         {/* 가입 버튼 */}
         <div className="mt-12 flex flex-col items-center gap-8">
           <div className="flex items-center gap-6 text-[14px] font-bold text-slate-400 px-4 py-2 border border-slate-50 rounded-full">
-            <button onClick={() => navigate("/find")} className="hover:text-blue-600 transition-colors">아이디 찾기</button>
+            <button
+              onClick={() => navigate("/find")}
+              className="hover:text-blue-600 transition-colors"
+            >
+              아이디 찾기
+            </button>
             <div className="w-[1px] h-3 bg-slate-200" />
-            <button onClick={() => navigate("/find")} className="hover:text-blue-600 transition-colors">비밀번호 찾기</button>
+            <button
+              onClick={() => navigate("/find")}
+              className="hover:text-blue-600 transition-colors"
+            >
+              비밀번호 찾기
+            </button>
           </div>
 
           <button
